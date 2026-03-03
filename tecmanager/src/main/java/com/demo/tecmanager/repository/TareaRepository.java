@@ -22,7 +22,7 @@ public interface TareaRepository extends MongoRepository<Tarea, String> {
     List<Tarea> findByTituloContainingIgnoreCase(String titulo);
 
     @Query("{ 'fecha_limite': { $lt: ?0 }, 'estado': { $ne: 'FINALIZADA' } }")
-    List<Tarea> findTareasVecncidas(LocalDateTime ahora);
+    List<Tarea> findTareasVencidas(LocalDateTime ahora);
 
     long countByEstado(EstadoTarea estado);
 
