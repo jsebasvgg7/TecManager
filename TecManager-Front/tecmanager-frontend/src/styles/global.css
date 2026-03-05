@@ -1,0 +1,233 @@
+/* resetear la config del navegador*/
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-primario: #2563eb;
+  --color-primario-hover: #1d4ed8;
+  --color-secundario: #64748b;
+  --color-exito: #16a34a;
+  --color-peligro: #dc2626;
+  --color-advertencia: #d97706;
+  --color-fondo: #f1f5f9;
+  --color-blanco: #ffffff;
+  --color-texto: #1e293b;
+  --color-texto-suave: #64748b;
+  --color-borde: #e2e8f0;
+  --radio-borde: 8px;
+  --sombra: 0 1px 3px rgba(0,0,0,0.1);
+  --sombra-md: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  line-height: 1.5;
+}
+
+/* Contenedor principal */
+.contenedor {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* Botones */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--radio-borde);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.btn-primario {
+  background: var(--color-primario);
+  color: white;
+}
+.btn-primario:hover { background: var(--color-primario-hover); }
+
+.btn-peligro {
+  background: var(--color-peligro);
+  color: white;
+}
+.btn-peligro:hover { opacity: 0.85; }
+
+.btn-secundario {
+  background: var(--color-borde);
+  color: var(--color-texto);
+}
+.btn-secundario:hover { background: #cbd5e1; }
+
+.btn-exito {
+  background: var(--color-exito);
+  color: white;
+}
+.btn-exito:hover { opacity: 0.85; }
+
+/* Formularios */
+.form-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-grupo label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-texto);
+}
+
+.form-grupo input,
+.form-grupo select,
+.form-grupo textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-grupo input:focus,
+.form-grupo select:focus,
+.form-grupo textarea:focus {
+  border-color: var(--color-primario);
+}
+
+/* Tarjetas */
+.card {
+  background: var(--color-blanco);
+  border-radius: var(--radio-borde);
+  box-shadow: var(--sombra);
+  padding: 20px;
+}
+
+/* Tabla */
+.tabla-contenedor {
+  background: white;
+  border-radius: var(--radio-borde);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: var(--color-fondo);
+}
+
+th, td {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+th {
+  font-weight: 600;
+  color: var(--color-texto-suave);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8fafc; }
+
+/* Badges de estado */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-pendiente   { background: #fef3c7; color: #92400e; }
+.badge-en-proceso  { background: #dbeafe; color: #1e40af; }
+.badge-finalizada  { background: #dcfce7; color: #166534; }
+.badge-en-espera   { background: #f3e8ff; color: #6b21a8; }
+
+/* Badges de prioridad */
+.badge-alta   { background: #fee2e2; color: #991b1b; }
+.badge-media  { background: #fef3c7; color: #92400e; }
+.badge-baja   { background: #dcfce7; color: #166534; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: var(--radio-borde);
+  padding: 24px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--sombra-md);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h2 { font-size: 18px; }
+
+.modal-cerrar {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--color-texto-suave);
+}
+
+/* Mensajes de error/éxito */
+.alerta {
+  padding: 12px 16px;
+  border-radius: var(--radio-borde);
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.alerta-error   { background: #fee2e2; color: #991b1b; }
+.alerta-exito   { background: #dcfce7; color: #166534; }
+
+/* Cargando */
+.cargando {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: var(--color-texto-suave);
+  font-size: 16px;
+}
+
+/* Página vacía */
+.vacio {
+  text-align: center;
+  padding: 48px;
+  color: var(--color-texto-suave);
+}
