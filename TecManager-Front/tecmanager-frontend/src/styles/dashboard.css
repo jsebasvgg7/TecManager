@@ -1,0 +1,88 @@
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.dashboard-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.texto-suave {
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Grid de métricas  */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Rendimiento */
+.dashboard-rendimiento {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.rendimiento-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rendimiento-icono {
+  font-size: 32px;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.rendimiento-valor {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.rendimiento-label {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* Gráficas */
+.dashboard-graficas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-graficas {
+    grid-template-columns: 1fr;
+  }
+}

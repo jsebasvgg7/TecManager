@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
 import '../../styles/navbar.css';
+import NotificacionBadge from './NotificacionBadge';
 
 export default function Navbar() {
   const { usuario, logout, esAdmin, esAsignador, esTecnico } = useAuth();
@@ -72,7 +73,7 @@ export default function Navbar() {
           {/* Solo TECNICO */}
           {esTecnico() && (
             <NavLink to="/mis-tareas" className="sidebar-link">
-              🔧 Mis Tareas
+              🔧 Mis Tareas <NotificacionBadge />
             </NavLink>
           )}
 
