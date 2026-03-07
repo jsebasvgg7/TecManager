@@ -16,13 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import org.apache.catalina.connector.Response;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
 @RequestMapping("/api/usuarios")
-@PreAuthorize("hasRole('ADMIN')")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
@@ -43,11 +40,13 @@ public class UsuarioController {
     }
 
     @GetMapping("/activos")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
     public ResponseEntity<List<UsuarioResponse>> listarActivos() {
         return ResponseEntity.ok(usuarioService.listarActivos());
     }
 
     @GetMapping("/rol/{rol}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
     public ResponseEntity<List<UsuarioResponse>> listarPorRol(@PathVariable Rol rol) {
         return ResponseEntity.ok(usuarioService.listarPorRol(rol));
     }
@@ -58,26 +57,31 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioResponse> obtenerPorId(@PathVariable String id) {
         return ResponseEntity.ok(usuarioService.obtenerPorId(id));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioResponse> editar(@PathVariable String id, @Valid @RequestBody UsuarioRequest request) {
         return ResponseEntity.ok(usuarioService.editar(id, request));
     }
 
     @PatchMapping("/{id}/rol")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioResponse> cambiarRol(@PathVariable String id, @RequestParam Rol nuevoRol) {
         return ResponseEntity.ok(usuarioService.cambiarRol(id, nuevoRol));
     }
 
     @PatchMapping("/{id}/estado")
+    @PreAuthorize("hasAnyRole('TECNICO', 'ADMIN', 'ASIGNADOR')")
     public ResponseEntity<UsuarioResponse> cambiarEstado(@PathVariable String id) {
         return ResponseEntity.ok(usuarioService.cambiarEstado(id));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminar(@PathVariable String id) {
         usuarioService.eliminar(id);
         return ResponseEntity.noContent().build();

@@ -5,6 +5,7 @@ import com.demo.tecmanager.security.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -42,12 +43,26 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/usuarios/rol/**").hasAnyRole("ADMIN", "ASIGNADOR")
+                .requestMatchers(HttpMethod.GET, "/api/usuarios/activos").hasAnyRole("ADMIN", "ASIGNADOR")
                 .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
-                .requestMatchers("/api/reportes").hasRole("ADMIN")
-                .requestMatchers("/api/dashboard/**").hasAnyRole("ADMIN", "ASIGNADOR")
-                .requestMatchers("/api/historial/**").hasAnyRole("ADMIN", "ASIGNADOR")
+
+                // Tareas
+                .requestMatchers(HttpMethod.GET, "/api/tareas/mis-tareas").hasRole("TECNICO")
+                .requestMatchers(HttpMethod.PATCH, "/api/tareas/*/estado").hasAnyRole("TECNICO", "ADMIN", "ASIGNADOR")
+                .requestMatchers("/api/tareas/**").hasAnyRole("ADMIN", "ASIGNADOR", "TECNICO")
+
+                // Reportes
+                .requestMatchers(HttpMethod.GET, "/api/reportes").hasRole("ADMIN")
                 .requestMatchers("/api/reportes/**").hasAnyRole("ADMIN", "ASIGNADOR")
-                .requestMatchers("/api/tareas/**").authenticated()
+
+                // Historial — ASIGNADOR también puede ver
+                .requestMatchers("/api/historial/**").hasAnyRole("ADMIN", "ASIGNADOR")
+
+                // Dashboard
+                .requestMatchers("/api/dashboard/**").hasAnyRole("ADMIN", "ASIGNADOR")
+
+                // Notificaciones
                 .requestMatchers("/api/notificaciones/**").authenticated()
                 .anyRequest().authenticated()
             )

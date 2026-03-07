@@ -21,8 +21,8 @@ public class HistorialController {
     }
 
     @GetMapping("/tarea/{tareaId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADO')")
-    public ResponseEntity<List<HistorialCambio>> porTarea(@PathVariable String tareaId) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
+    public ResponseEntity<List<HistorialCambio>> obtenerPorTarea(@PathVariable String tareaId) {
         return ResponseEntity.ok(historialService.obtenerPorTarea(tareaId));
     }
 

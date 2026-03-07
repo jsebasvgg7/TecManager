@@ -1,5 +1,6 @@
 package com.demo.tecmanager.controller;
 
+import com.demo.tecmanager.document.Tarea;
 import com.demo.tecmanager.dto.tarea.CambioEstadoRequest;
 import com.demo.tecmanager.dto.tarea.TareaRequest;
 import com.demo.tecmanager.dto.tarea.TareaResponse;
@@ -47,9 +48,9 @@ public class TareaController {
 
     @GetMapping("/mis-tareas")
     @PreAuthorize("hasRole('TECNICO')")
-    public ResponseEntity<List<TareaResponse>> misTareas(Authentication authentication) {
-        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
-        return ResponseEntity.ok(tareaService.listarPorTecnico(email));
+        public ResponseEntity<List<Tarea>> misTareas(Authentication authentication) {
+        String email = authentication.getName();
+        return ResponseEntity.ok(tareaService.obtenerMisTareas(email));
     }
 
     @GetMapping("/estado/{estado}")

@@ -99,6 +99,12 @@ public class TareaService {
         return toResponse(buscarPorIdOFallar(id));
     }
 
+    public List<Tarea> obtenerMisTareas(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return tareaRepository.findByTecnicoId(usuario.getId());
+    }
+
     public TareaResponse editar(String tareaId, TareaRequest request, String emailUsuario) {
     Tarea tarea = buscarPorIdOFallar(tareaId);
 
