@@ -3,45 +3,53 @@ import {
   Tooltip, ResponsiveContainer, Cell
 } from 'recharts';
 
+const COLORES = ['#d9cfc4', '#93c5fd', '#86efac', '#d8b4fe', '#fca5a5'];
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{
+      background: '#262424', color: '#EEE5DA',
+      padding: '10px 14px', borderRadius: '10px',
+      fontSize: '13px', fontFamily: 'Nunito, sans-serif',
+      boxShadow: '0 8px 24px rgba(38,36,36,0.25)',
+    }}>
+      <div style={{ fontWeight: 800, marginBottom: 2 }}>{label}</div>
+      <div style={{ color: '#d9cfc4' }}>{payload[0].value} tareas</div>
+    </div>
+  );
+};
+
 export default function GraficaEstados({ datos }) {
   const data = [
-    { nombre: 'Pendiente',   valor: datos.tareasPendientes,   color: '#f59e0b' },
-    { nombre: 'En Proceso',  valor: datos.tareasEnProceso,    color: '#3b82f6' },
-    { nombre: 'Finalizada',  valor: datos.tareasFinalizadas,  color: '#22c55e' },
-    { nombre: 'En Espera',   valor: datos.tareasEnEspera,     color: '#a855f7' },
-    { nombre: 'Vencidas',    valor: datos.tareasVencidas,     color: '#ef4444' },
+    { nombre: 'Pendiente',  valor: datos.tareasPendientes  },
+    { nombre: 'En Proceso', valor: datos.tareasEnProceso   },
+    { nombre: 'Finalizada', valor: datos.tareasFinalizadas },
+    { nombre: 'En Espera',  valor: datos.tareasEnEspera    },
+    { nombre: 'Vencidas',   valor: datos.tareasVencidas    },
   ];
 
   return (
-    <div className="card">
-      <h3 style={{ marginBottom: '20px', fontSize: '16px', fontWeight: '600' }}>
-        📊 Tareas por Estado
-      </h3>
-      <ResponsiveContainer width="100%" height={250}>
-        <BarChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis
-            dataKey="nombre"
-            tick={{ fontSize: 12, fill: '#64748b' }}
-          />
-          <YAxis
-            allowDecimals={false}
-            tick={{ fontSize: 12, fill: '#64748b' }}
-          />
-          <Tooltip
-            contentStyle={{
-              borderRadius: '8px',
-              border: '1px solid #e2e8f0',
-              fontSize: '13px'
-            }}
-          />
-          <Bar dataKey="valor" radius={[6, 6, 0, 0]}>
-            {data.map((entry, index) => (
-              <Cell key={index} fill={entry.color} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+    <ResponsiveContainer width="100%" height={230}>
+      <BarChart data={data} margin={{ top: 4, right: 8, left: -24, bottom: 0 }} barCategoryGap="35%">
+        <CartesianGrid strokeDasharray="3 3" stroke="#f0ece7" vertical={false} />
+        <XAxis
+          dataKey="nombre"
+          tick={{ fontSize: 11, fill: '#6b6868', fontFamily: 'Nunito Sans, sans-serif', fontWeight: 600 }}
+          axisLine={false} tickLine={false}
+        />
+        <YAxis
+          allowDecimals={false}
+          tick={{ fontSize: 11, fill: '#6b6868', fontFamily: 'Nunito Sans, sans-serif' }}
+          axisLine={false} tickLine={false}
+        />
+        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(238,229,218,0.30)' }} />
+        <Bar dataKey="valor" radius={[6, 6, 0, 0]} maxBarSize={48}>
+          {data.map((_, i) => (
+            <Cell key={i} fill={COLORES[i % COLORES.length]} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
   );
 }

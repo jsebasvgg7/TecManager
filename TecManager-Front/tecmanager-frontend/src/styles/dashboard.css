@@ -1,88 +1,459 @@
-/* Header */
-.dashboard-header {
+/* ══════════════════════════════════════
+   DASHBOARD — Charcoal + Almond
+   Nunito / Nunito Sans
+══════════════════════════════════════ */
+
+.dash-root {
+  padding: 0;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 24px;
+  flex-direction: column;
+  gap: 20px;
+  animation: dashIn 0.5s ease both;
 }
 
-.dashboard-header h1 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 4px;
+@keyframes dashIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.texto-suave {
-  color: #64748b;
-  font-size: 14px;
-}
-
-/* Grid de métricas  */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-/* Rendimiento */
-.dashboard-rendimiento {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.rendimiento-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.rendimiento-icono {
-  font-size: 32px;
-  width: 56px;
-  height: 56px;
+/* ── Loading ── */
+.dash-loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f1f5f9;
-  border-radius: 12px;
+  height: 300px;
+  gap: 10px;
+  color: #3a3737;
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 14px;
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Header ── */
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 4px;
+}
+
+.dash-eyebrow {
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #3a3737;
+  margin-bottom: 4px;
+}
+
+.dash-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 30px;
+  font-weight: 900;
+  color: #262424;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.dash-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #ffffff;
+  border: 1.5px solid #EEE5DA;
+  border-radius: 10px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #3a3737;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.dash-refresh-btn:hover {
+  background: #f7f4f0;
+  border-color: #d9cfc4;
+  transform: translateY(-1px);
+}
+
+/* ── Section title ── */
+.dash-section-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: #262424;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+
+/* ══════════════════════════════════════
+   MÉTRICAS GRID
+══════════════════════════════════════ */
+.dash-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+.metric-card {
+  background: #ffffff;
+  border: 1px solid rgba(238,229,218,0.80);
+  border-radius: 16px;
+  padding: 18px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 1px 4px rgba(38,36,36,0.06);
+  animation: cardUp 0.45s ease both;
+  transition: box-shadow 0.2s, transform 0.18s;
+  cursor: default;
+}
+
+.metric-card:hover {
+  box-shadow: 0 6px 20px rgba(38,36,36,0.10);
+  transform: translateY(-3px);
+}
+
+@keyframes cardUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.metric-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.metric-icon-wrap {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
 
-.rendimiento-valor {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1e293b;
+.metric-pct {
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  opacity: 0.80;
 }
 
-.rendimiento-label {
-  font-size: 13px;
-  color: #64748b;
+.metric-val {
+  font-family: 'Nunito', sans-serif;
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-top: 2px;
 }
 
-/* Gráficas */
-.dashboard-graficas {
+.metric-label {
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 11.5px;
+  color: #6b6868;
+  font-weight: 500;
+}
+
+.metric-bar-track {
+  width: 100%;
+  height: 3px;
+  background: #f0ece7;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.metric-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s cubic-bezier(0.22,1,0.36,1);
+}
+
+/* ══════════════════════════════════════
+   FILA MEDIA
+══════════════════════════════════════ */
+.dash-mid-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 24px;
+  grid-template-columns: 280px 1fr;
+  gap: 14px;
+  align-items: stretch;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .dashboard-header {
-    flex-direction: column;
-    gap: 12px;
-  }
+/* ── KPI Panel ── */
+.dash-kpi-panel {
+  background: #262424;
+  border-radius: 18px;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+}
 
-  .dashboard-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.dash-kpi-panel .dash-section-title {
+  color: #EEE5DA;
+  margin-bottom: 18px;
+}
 
-  .dashboard-graficas {
-    grid-template-columns: 1fr;
-  }
+.kpi-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.kpi-icon-wrap {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-green { background: rgba(34,197,94,0.15);  color: #4ade80; }
+.kpi-blue  { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.kpi-red   { background: rgba(239,68,68,0.15);  color: #f87171; }
+
+.kpi-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.kpi-val {
+  font-family: 'Nunito', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: #EEE5DA;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.kpi-label {
+  font-size: 11.5px;
+  color: rgba(238,229,218,0.50);
+}
+
+.kpi-trend {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-trend-up     { background: rgba(34,197,94,0.15);  color: #4ade80; }
+.kpi-trend-down   { background: rgba(239,68,68,0.15);  color: #f87171; }
+.kpi-trend-neutral{ background: rgba(238,229,218,0.10); color: rgba(238,229,218,0.50); }
+
+.kpi-divider {
+  height: 1px;
+  background: rgba(238,229,218,0.10);
+  margin: 2px 0;
+}
+
+/* Progreso global */
+.kpi-progress-wrap {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(238,229,218,0.10);
+}
+
+.kpi-progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: rgba(238,229,218,0.50);
+  margin-bottom: 8px;
+  font-family: 'Nunito Sans', sans-serif;
+}
+
+.kpi-progress-pct {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  color: #EEE5DA;
+}
+
+.kpi-progress-track {
+  width: 100%;
+  height: 5px;
+  background: rgba(238,229,218,0.12);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.kpi-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d9cfc4, #EEE5DA);
+  border-radius: 5px;
+  transition: width 1.2s cubic-bezier(0.22,1,0.36,1);
+}
+
+.kpi-progress-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(238,229,218,0.35);
+  margin-top: 6px;
+  font-family: 'Nunito Sans', sans-serif;
+}
+
+/* ── Chart wrap ── */
+.dash-chart-wrap {
+  background: #ffffff;
+  border: 1px solid rgba(238,229,218,0.80);
+  border-radius: 18px;
+  padding: 22px 20px 16px;
+  box-shadow: 0 1px 4px rgba(38,36,36,0.06);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ══════════════════════════════════════
+   FILA BAJA
+══════════════════════════════════════ */
+.dash-bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 14px;
+  align-items: stretch;
+}
+
+/* ── Técnicos ── */
+.dash-tecnicos-panel {
+  background: #ffffff;
+  border: 1px solid rgba(238,229,218,0.80);
+  border-radius: 18px;
+  padding: 22px 20px;
+  box-shadow: 0 1px 4px rgba(38,36,36,0.06);
+  height: 100%;
+}
+
+.dash-tecnicos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.dash-tecnicos-header .dash-section-title { margin-bottom: 0; }
+
+.dash-tecnicos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tecnico-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tecnico-rank {
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  color: #d9cfc4;
+  width: 22px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.tecnico-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: #262424;
+  color: #EEE5DA;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.tecnico-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.tecnico-nombre {
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #262424;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tecnico-bar-track {
+  width: 100%;
+  height: 3px;
+  background: #f0ece7;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.tecnico-bar-fill {
+  height: 100%;
+  background: #262424;
+  border-radius: 3px;
+  transition: width 1s cubic-bezier(0.22,1,0.36,1);
+}
+
+.tecnico-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.tecnico-activas {
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  color: #262424;
+  line-height: 1;
+}
+
+.tecnico-fin {
+  font-size: 10.5px;
+  color: #6b6868;
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .dash-metrics-grid { grid-template-columns: repeat(3, 1fr); }
+  .dash-mid-row      { grid-template-columns: 1fr; }
+  .dash-bottom-row   { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .dash-metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .dash-header       { flex-direction: column; align-items: flex-start; gap: 12px; }
+}
+
+/* Chart wrap inner — gráfica ocupa espacio restante */
+.dash-chart-wrap .recharts-responsive-container,
+.dash-chart-wrap > div:last-child {
+  flex: 1;
 }
