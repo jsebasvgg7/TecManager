@@ -1,22 +1,18 @@
+import { Pencil, ScrollText, User, Calendar, Clock, CheckCircle2, RefreshCw, AlertTriangle } from 'lucide-react';
+
 export default function TareaCard({ tarea, onEditar, onCambiarEstado, onVerHistorial, soloLectura }) {
 
-  const getBadgeEstado = (estado) => {
-    const clases = {
-      PENDIENTE:  'badge badge-pendiente',
-      EN_PROCESO: 'badge badge-en-proceso',
-      FINALIZADA: 'badge badge-finalizada',
-      EN_ESPERA:  'badge badge-en-espera',
-    };
-    return clases[estado] || 'badge';
+  const ESTADO_CONFIG = {
+    PENDIENTE:  { label: 'Pendiente',  cls: 'badge-pendiente',  dot: '#f59e0b' },
+    EN_PROCESO: { label: 'En Proceso', cls: 'badge-en-proceso', dot: '#3b82f6' },
+    FINALIZADA: { label: 'Finalizada', cls: 'badge-finalizada', dot: '#22c55e' },
+    EN_ESPERA:  { label: 'En Espera',  cls: 'badge-en-espera',  dot: '#a855f7' },
   };
 
-  const getBadgePrioridad = (prioridad) => {
-    const clases = {
-      ALTA:  'badge badge-alta',
-      MEDIA: 'badge badge-media',
-      BAJA:  'badge badge-baja',
-    };
-    return clases[prioridad] || 'badge';
+  const PRIORIDAD_CONFIG = {
+    ALTA:  { label: 'Alta',  cls: 'badge-alta'  },
+    MEDIA: { label: 'Media', cls: 'badge-media' },
+    BAJA:  { label: 'Baja',  cls: 'badge-baja'  },
   };
 
   const formatFecha = (fecha) => {
@@ -26,64 +22,81 @@ export default function TareaCard({ tarea, onEditar, onCambiarEstado, onVerHisto
     });
   };
 
+  const estado    = ESTADO_CONFIG[tarea.estado]    || { label: tarea.estado,    cls: 'badge' };
+  const prioridad = PRIORIDAD_CONFIG[tarea.prioridad] || { label: tarea.prioridad, cls: 'badge' };
+
   return (
     <div className={`tarea-card ${tarea.vencida ? 'tarea-vencida' : ''}`}>
 
-      {/* Header de la card */}
+      {/* Header */}
       <div className="tarea-card-header">
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <span className={getBadgeEstado(tarea.estado)}>{tarea.estado?.replace('_', ' ')}</span>
-          <span className={getBadgePrioridad(tarea.prioridad)}>{tarea.prioridad}</span>
-          {tarea.vencida && <span className="badge badge-alta">⚠️ VENCIDA</span>}
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+          {/* Dot + estado */}
+          <span className={`badge ${estado.cls}`}>
+            <span style={{
+              width: 6, height: 6, borderRadius: '50%',
+              background: estado.dot, display: 'inline-block', marginRight: 5, flexShrink: 0
+            }}/>
+            {estado.label}
+          </span>
+          <span className={`badge ${prioridad.cls}`}>{prioridad.label}</span>
+          {tarea.vencida && (
+            <span className="badge badge-alta" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <AlertTriangle size={10} strokeWidth={2.5} /> Vencida
+            </span>
+          )}
         </div>
+
         {!soloLectura && (
-          <div style={{ display: 'flex', gap: '6px' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
             <button
-              className="btn btn-secundario"
-              style={{ padding: '4px 10px', fontSize: '12px' }}
+              className="tarea-icon-btn"
               onClick={() => onEditar(tarea)}
+              title="Editar"
             >
-              ✏️
+              <Pencil size={13} strokeWidth={2} />
             </button>
             <button
-              className="btn btn-secundario"
-              style={{ padding: '4px 10px', fontSize: '12px' }}
+              className="tarea-icon-btn"
               onClick={() => onVerHistorial(tarea.id)}
+              title="Ver historial"
             >
-              📜
+              <ScrollText size={13} strokeWidth={2} />
             </button>
           </div>
         )}
       </div>
 
-      {/* Título y descripción */}
+      {/* Título */}
       <h3 className="tarea-card-titulo">{tarea.titulo}</h3>
+
+      {/* Descripción */}
       {tarea.descripcion && (
         <p className="tarea-card-desc">{tarea.descripcion}</p>
       )}
 
-      {/* Info */}
+      {/* Info chips */}
       <div className="tarea-card-info">
         {tarea.tecnicoNombre && (
-          <span>👨‍🔧 {tarea.tecnicoNombre}</span>
+          <span><User size={10} strokeWidth={2.5} style={{ marginRight: 4, verticalAlign: 'middle' }} />{tarea.tecnicoNombre}</span>
         )}
-        <span>📅 {formatFecha(tarea.fechaLimite)}</span>
+        <span><Calendar size={10} strokeWidth={2.5} style={{ marginRight: 4, verticalAlign: 'middle' }} />{formatFecha(tarea.fechaLimite)}</span>
         {tarea.tiempoEstimadoHoras && (
-          <span>⏱️ {tarea.tiempoEstimadoHoras}h estimadas</span>
+          <span><Clock size={10} strokeWidth={2.5} style={{ marginRight: 4, verticalAlign: 'middle' }} />{tarea.tiempoEstimadoHoras}h est.</span>
         )}
         {tarea.tiempoRealHoras != null && (
-          <span>✅ {tarea.tiempoRealHoras}h reales</span>
+          <span><CheckCircle2 size={10} strokeWidth={2.5} style={{ marginRight: 4, verticalAlign: 'middle' }} />{tarea.tiempoRealHoras}h real</span>
         )}
       </div>
 
       {/* Botón cambiar estado */}
       {tarea.estado !== 'FINALIZADA' && (
         <button
-          className="btn btn-primario"
-          style={{ width: '100%', justifyContent: 'center', marginTop: '12px' }}
+          className="tarea-estado-btn"
           onClick={() => onCambiarEstado(tarea)}
         >
-          🔄 Cambiar Estado
+          <RefreshCw size={13} strokeWidth={2.5} />
+          Cambiar estado
         </button>
       )}
 

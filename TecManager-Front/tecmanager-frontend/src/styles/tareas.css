@@ -118,3 +118,90 @@
   .tareas-grid { grid-template-columns: 1fr; }
   .mis-tareas-resumen { justify-content: space-between; }
 }
+
+/* ── Botones icono en card ── */
+.tarea-icon-btn {
+  width: 28px; height: 28px;
+  background: #f7f4f0;
+  border: 1px solid #EEE5DA;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #3a3737;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.tarea-icon-btn:hover {
+  background: #262424;
+  color: #EEE5DA;
+  border-color: #262424;
+}
+
+/* ── Botón cambiar estado ── */
+.tarea-estado-btn {
+  width: 100%;
+  padding: 9px;
+  background: #f7f4f0;
+  border: 1.5px solid #EEE5DA;
+  border-radius: 10px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #262424;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: background 0.15s, border-color 0.15s;
+  margin-top: 4px;
+}
+
+.tarea-estado-btn:hover {
+  background: #262424;
+  border-color: #262424;
+  color: #EEE5DA;
+}
+
+/* ── Buscador con ícono ── */
+.filtro-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.filtro-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9a9090;
+  pointer-events: none;
+}
+
+.filtro-input-search {
+  padding-left: 36px !important;
+  width: 100%;
+}
+
+/* ── Eyebrow en pages ── */
+.dash-eyebrow {
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #3a3737;
+  margin-bottom: 4px;
+}
+
+/* ── Spin para loader ── */
+.spin {
+  animation: spinAnim 0.8s linear infinite;
+  display: inline-flex;
+}
+@keyframes spinAnim {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
