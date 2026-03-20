@@ -17,6 +17,7 @@ public class CorsConfig {
         config.setAllowedOrigins(List.of(
             "http://localhost:3000",
             "http://localhost:5173",
+            "https://tecmanager-back.onrender.com",
             "https://tecmanager.onrender.com"
         ));
 
