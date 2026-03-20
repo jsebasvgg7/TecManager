@@ -1,117 +1,116 @@
 package com.demo.tecmanager.controller;
 
-import com.demo.tecmanager.document.Tarea;
 import com.demo.tecmanager.dto.tarea.CambioEstadoRequest;
 import com.demo.tecmanager.dto.tarea.TareaRequest;
 import com.demo.tecmanager.dto.tarea.TareaResponse;
-import com.demo.tecmanager.enums.EstadoTarea;
-import com.demo.tecmanager.enums.Prioridad;
 import com.demo.tecmanager.service.TareaService;
-
 import jakarta.validation.Valid;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import org.apache.catalina.connector.Response;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tareas")
 public class TareaController {
 
-    private final TareaService tareaService;
+    private final TareaService service;
 
-    @Autowired
-    public TareaController(TareaService tareaService) {
-        this.tareaService = tareaService;
+    public TareaController(TareaService service) {
+        this.service = service;
     }
 
-    @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
-    public ResponseEntity<TareaResponse> crear(@Valid @RequestBody TareaRequest request, Authentication authentication) {
-        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
-        return ResponseEntity.status(HttpStatus.CREATED).body(tareaService.crear(request, email));
-    }
-
+    // ── GET /api/tareas ──
+    // ADMIN y ASIGNADOR ven todas; TECNICO solo las suyas
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
-    public ResponseEntity<List<TareaResponse>> listarTodas() {
-        return ResponseEntity.ok(tareaService.listarTodas());
+    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR','TECNICO')")
+    public ResponseEntity<List<TareaResponse>> listar(Authentication auth) {
+        boolean esPrivilegiado = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
+                            || a.getAuthority().equals("ROLE_ASIGNADOR"));
+
+        List<TareaResponse> tareas = esPrivilegiado
+                ? service.listarTodas()
+                : service.listarPorTecnico(auth.getName());
+
+        return ResponseEntity.ok(tareas);
     }
 
+    // ── GET /api/tareas/mis-tareas  (TECNICO: solo las suyas) ──
     @GetMapping("/mis-tareas")
     @PreAuthorize("hasRole('TECNICO')")
-        public ResponseEntity<List<Tarea>> misTareas(Authentication authentication) {
-        String email = authentication.getName();
-        return ResponseEntity.ok(tareaService.obtenerMisTareas(email));
+    public ResponseEntity<List<TareaResponse>> misTareas(Authentication auth) {
+        return ResponseEntity.ok(service.listarPorTecnico(auth.getName()));
     }
 
-    @GetMapping("/estado/{estado}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
-    public ResponseEntity<List<TareaResponse>> listarPorEstado(@PathVariable EstadoTarea estado) {
-        return ResponseEntity.ok(tareaService.listarPorEstado(estado));
+    // ── GET /api/tareas/categoria/{categoriaId} ──
+    @GetMapping("/categoria/{categoriaId}")
+    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR')")
+    public ResponseEntity<List<TareaResponse>> porCategoria(@PathVariable String categoriaId) {
+        return ResponseEntity.ok(service.listarPorCategoria(categoriaId));
     }
 
-    @GetMapping("/prioridad/{prioridad}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
-    public ResponseEntity<List<TareaResponse>> listarPorPrioridad(@PathVariable Prioridad prioridad) {
-        return ResponseEntity.ok(tareaService.listarPorPrioridad(prioridad));
-    }
-
-    @GetMapping("/vencidas")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
-    public ResponseEntity<List<TareaResponse>> listarVencidas() {
-        return ResponseEntity.ok(tareaService.listarVencidas());
-    }
-
-    @GetMapping("/buscar")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<TareaResponse>> buscar(@RequestParam String titulo) {
-        return ResponseEntity.ok(tareaService.buscarPorTitulo(titulo));
-    }
-
+    // ── GET /api/tareas/{id} ──
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<TareaResponse> obtenerPorId(@PathVariable String id) {
-        return ResponseEntity.ok(tareaService.obtenerPorId(id));
-    } 
+    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR','TECNICO')")
+    public ResponseEntity<TareaResponse> obtener(@PathVariable String id) {
+        return ResponseEntity.ok(service.obtenerPorId(id));
+    }
 
+    // ── POST /api/tareas  (ADMIN + ASIGNADOR) ──
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR')")
+    public ResponseEntity<TareaResponse> crear(
+            @Valid @RequestBody TareaRequest req,
+            Authentication auth) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.crear(req, auth.getName()));
+    }
+
+    // ── PUT /api/tareas/{id}  (ADMIN + ASIGNADOR) ──
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
-    public ResponseEntity<TareaResponse> editar(@PathVariable String id, @Valid @RequestBody TareaRequest request, Authentication authentication) {
-        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
-        return ResponseEntity.ok(tareaService.editar(id, request, email));
+    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR')")
+    public ResponseEntity<TareaResponse> actualizar(
+            @PathVariable String id,
+            @Valid @RequestBody TareaRequest req,
+            Authentication auth) {
+        return ResponseEntity.ok(service.actualizar(id, req, auth.getName()));
     }
 
-    @GetMapping("/{id}/asignar")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
-    public ResponseEntity<TareaResponse> asignarTecnico(@PathVariable String id, @RequestParam String tecnicoId, Authentication authentication) {
-        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
-        return ResponseEntity.ok(tareaService.asignarTecnico(id, tecnicoId, email));
-    }
-
+    // ── PATCH /api/tareas/{id}/estado  (todos los roles) ──
     @PatchMapping("/{id}/estado")
-    @PreAuthorize("hasAnyRole('TECNICO', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR','TECNICO')")
     public ResponseEntity<TareaResponse> cambiarEstado(
             @PathVariable String id,
-            @Valid @RequestBody CambioEstadoRequest request,
-            Authentication authentication) {
-        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
-        return ResponseEntity.ok(tareaService.cambiarEstado(id, request, email));
+            @RequestBody CambioEstadoRequest req,
+            Authentication auth) {
+        return ResponseEntity.ok(service.cambiarEstado(id, req, auth.getName()));
     }
 
+    // ── PATCH /api/tareas/{id}/avance  (TECNICO, ADMIN, ASIGNADOR) ──
+    // Body: { "porcentaje": 60 }
+    @PatchMapping("/{id}/avance")
+    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR','TECNICO')")
+    public ResponseEntity<TareaResponse> actualizarAvance(
+            @PathVariable String id,
+            @RequestBody Map<String, Integer> body,
+            Authentication auth) {
+        Integer porcentaje = body.get("porcentaje");
+        if (porcentaje == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(service.actualizarAvance(id, porcentaje, auth.getName()));
+    }
+
+    // ── DELETE /api/tareas/{id}  (solo ADMIN) ──
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminar(@PathVariable String id) {
-        tareaService.eliminar(id);
+        service.eliminar(id);
         return ResponseEntity.noContent().build();
     }
-
 }

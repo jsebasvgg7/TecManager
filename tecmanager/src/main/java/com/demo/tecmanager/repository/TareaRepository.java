@@ -11,21 +11,22 @@ import java.util.List;
 
 public interface TareaRepository extends MongoRepository<Tarea, String> {
 
+    // ── Originales ──
     List<Tarea> findByTecnicoId(String tecnicoId);
-
     List<Tarea> findByEstado(EstadoTarea estado);
-
     List<Tarea> findByPrioridad(Prioridad prioridad);
-
     List<Tarea> findByTecnicoIdAndEstado(String tecnicoId, EstadoTarea estado);
-
     List<Tarea> findByTituloContainingIgnoreCase(String titulo);
 
     @Query("{ 'fecha_limite': { $lt: ?0 }, 'estado': { $ne: 'FINALIZADA' } }")
     List<Tarea> findTareasVencidas(LocalDateTime ahora);
 
     long countByEstado(EstadoTarea estado);
-
     long countByTecnicoIdAndEstadoNot(String tecnicoId, EstadoTarea estado);
 
+    // ── Nuevos ──
+    List<Tarea> findByTecnicosIdsContaining(String tecnicoId);
+    List<Tarea> findByCategoriaId(String categoriaId);
+    List<Tarea> findByCreadaPor(String creadaPor);
+    long countByTecnicoId(String tecnicoId);
 }

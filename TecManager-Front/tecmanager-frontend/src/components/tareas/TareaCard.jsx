@@ -1,100 +1,187 @@
-import { Pencil, ScrollText, User, Calendar, Clock, CheckCircle2, RefreshCw, AlertTriangle } from 'lucide-react';
+import {
+  Pencil, ScrollText, User, Calendar, Clock,
+  CheckCircle2, RefreshCw, AlertTriangle, Tag,
+  Users, TrendingUp, Timer, Trash2
+} from 'lucide-react';
+import '../../styles/tareaCard.css';
 
-export default function TareaCard({ tarea, onEditar, onCambiarEstado, onVerHistorial, soloLectura }) {
+export default function TareaCard({ tarea, onEditar, onCambiarEstado, onVerHistorial, onEliminar, soloLectura }) {
 
   const ESTADO_CONFIG = {
-    PENDIENTE:  { label: 'Pendiente',  cls: 'badge-pendiente',  dot: '#f59e0b' },
-    EN_PROCESO: { label: 'En Proceso', cls: 'badge-en-proceso', dot: '#3b82f6' },
-    FINALIZADA: { label: 'Finalizada', cls: 'badge-finalizada', dot: '#22c55e' },
-    EN_ESPERA:  { label: 'En Espera',  cls: 'badge-en-espera',  dot: '#a855f7' },
+    PENDIENTE:  { label: 'Pendiente',  cls: 'tc-chip-pendiente',  dot: '#f59e0b' },
+    EN_PROCESO: { label: 'En Proceso', cls: 'tc-chip-proceso',    dot: '#3b82f6' },
+    FINALIZADA: { label: 'Finalizada', cls: 'tc-chip-finalizada', dot: '#22c55e' },
+    EN_ESPERA:  { label: 'En Espera',  cls: 'tc-chip-espera',     dot: '#a855f7' },
   };
 
   const PRIORIDAD_CONFIG = {
-    ALTA:  { label: 'Alta',  cls: 'badge-alta'  },
-    MEDIA: { label: 'Media', cls: 'badge-media' },
-    BAJA:  { label: 'Baja',  cls: 'badge-baja'  },
+    ALTA:  { label: 'Alta',  cls: 'tc-chip-alta'  },
+    MEDIA: { label: 'Media', cls: 'tc-chip-media' },
+    BAJA:  { label: 'Baja',  cls: 'tc-chip-baja'  },
   };
 
-  const formatFecha = (fecha) => {
-    if (!fecha) return '—';
-    return new Date(fecha).toLocaleDateString('es-CO', {
-      day: '2-digit', month: 'short', year: 'numeric'
-    });
-  };
+ const formatFechaCompleta = (fecha) => {
+  if (!fecha) return '—';
+  return new Date(fecha).toLocaleDateString('es-CO', {
+    day: '2-digit', month: '2-digit', year: 'numeric'
+  });
+};
+  const estado    = ESTADO_CONFIG[tarea.estado]       || { label: tarea.estado,    cls: 'tc-chip' };
+  const prioridad = PRIORIDAD_CONFIG[tarea.prioridad] || { label: tarea.prioridad, cls: 'tc-chip' };
 
-  const estado    = ESTADO_CONFIG[tarea.estado]    || { label: tarea.estado,    cls: 'badge' };
-  const prioridad = PRIORIDAD_CONFIG[tarea.prioridad] || { label: tarea.prioridad, cls: 'badge' };
+  const slaVencido = tarea.slaVencido;
+  const slaHorasRestantes = tarea.fechaLimiteSla
+    ? Math.round((new Date(tarea.fechaLimiteSla) - new Date()) / 3600000)
+    : null;
+  const slaEnRiesgo = slaHorasRestantes !== null && slaHorasRestantes > 0 && slaHorasRestantes <= 2;
+
+  const avance      = tarea.porcentajeAvance ?? 0;
+  const avanceColor = avance >= 100 ? '#22c55e' : avance >= 50 ? '#3b82f6' : '#f59e0b';
+
+  const iniciales = tarea.categoriaNombre
+    ? tarea.categoriaNombre.slice(0, 2).toUpperCase()
+    : null;
 
   return (
-    <div className={`tarea-card ${tarea.vencida ? 'tarea-vencida' : ''}`}>
+    <div className={`tc-card ${tarea.vencida ? 'tc-card-vencida' : ''} ${slaVencido ? 'tc-card-sla' : ''}`}>
 
-      {/* Header */}
-      <div className="tarea-card-header">
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-          {/* Dot + estado */}
-          <span className={`badge ${estado.cls}`}>
-            <span style={{
-              width: 6, height: 6, borderRadius: '50%',
-              background: estado.dot, display: 'inline-block', marginRight: 5, flexShrink: 0
-            }}/>
-            {estado.label}
-          </span>
-          <span className={`badge ${prioridad.cls}`}>{prioridad.label}</span>
-          {tarea.vencida && (
-            <span className="badge badge-alta" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <AlertTriangle size={10} strokeWidth={2.5} /> Vencida
-            </span>
+      {/* ── 1. AVATAR + TÍTULO + BOTÓN ELIMINAR ── */}
+      <div className="tc-row-top">
+        <div
+          className="tc-avatar"
+          style={{ background: tarea.categoriaColor ? `${tarea.categoriaColor}15` : '#f0ece7' }}
+        >
+          {iniciales
+            ? <span style={{ color: tarea.categoriaColor || '#6b6868' }}>{iniciales}</span>
+            : <Tag size={15} strokeWidth={2} style={{ color: '#9b9898' }} />
+          }
+        </div>
+
+        <div className="tc-header-info">
+          <h3 className="tc-titulo">{tarea.titulo}</h3>
+          {tarea.tecnicoNombre && (
+            <p className="tc-subtitulo">
+              <User size={11} strokeWidth={2} />
+              {tarea.tecnicoNombre}
+              {tarea.tecnicosIds?.length > 0 && (
+                <span style={{ marginLeft: 4 }}>
+                  · +{tarea.tecnicosIds.length} colab.
+                </span>
+              )}
+            </p>
           )}
         </div>
 
-        {!soloLectura && (
-          <div style={{ display: 'flex', gap: '5px' }}>
-            <button
-              className="tarea-icon-btn"
-              onClick={() => onEditar(tarea)}
-              title="Editar"
-            >
-              <Pencil size={13} strokeWidth={2} />
-            </button>
-            <button
-              className="tarea-icon-btn"
-              onClick={() => onVerHistorial(tarea.id)}
-              title="Ver historial"
-            >
-              <ScrollText size={13} strokeWidth={2} />
-            </button>
-          </div>
+        {!soloLectura && onEliminar && (
+          <button className="tc-btn-icon tc-btn-danger" onClick={() => onEliminar(tarea.id)} title="Eliminar">
+            <Trash2 size={13} strokeWidth={2} />
+          </button>
         )}
       </div>
 
-      {/* Título */}
-      <h3 className="tarea-card-titulo">{tarea.titulo}</h3>
+      {/* ── 2. CHIPS: estado · prioridad · categoría · alertas ── */}
+      <div className="tc-chips-row">
+        <span className={`tc-chip ${estado.cls}`}>
+          <span className="tc-chip-dot" style={{ background: estado.dot }} />
+          {estado.label}
+        </span>
+        <span className={`tc-chip ${prioridad.cls}`}>{prioridad.label}</span>
+        {tarea.categoriaNombre && (
+          <span
+            className="tc-chip tc-chip-cat"
+            style={{ color: tarea.categoriaColor || '#6b6868' }}
+          >
+            <Tag size={10} strokeWidth={2.5} />
+            {tarea.categoriaNombre}
+          </span>
+        )}
+        {tarea.vencida && (
+          <span className="tc-chip tc-chip-alta">
+            <AlertTriangle size={10} strokeWidth={2.5} /> Vencida
+          </span>
+        )}
+        {slaVencido && !tarea.vencida && (
+          <span className="tc-chip" style={{ background: '#fff7ed', color: '#c2410c' }}>
+            <Timer size={10} strokeWidth={2.5} /> SLA vencido
+          </span>
+        )}
+        {slaEnRiesgo && (
+          <span className="tc-chip" style={{ background: '#fef3c7', color: '#92400e' }}>
+            <Timer size={10} strokeWidth={2.5} /> {slaHorasRestantes}h restantes
+          </span>
+        )}
+      </div>
 
-      {/* Descripción */}
+      {/* ── 3. DESCRIPCIÓN ── */}
       {tarea.descripcion && (
-        <p className="tarea-card-desc">{tarea.descripcion}</p>
+        <p className="tc-desc">{tarea.descripcion}</p>
       )}
 
-      {/* Info chips */}
-      <div className="tarea-card-info">
-        {tarea.tecnicoNombre && (
-          <span><User size={10} strokeWidth={2.5} style={{ marginRight: 4, verticalAlign: 'middle' }} />{tarea.tecnicoNombre}</span>
-        )}
-        <span><Calendar size={10} strokeWidth={2.5} style={{ marginRight: 4, verticalAlign: 'middle' }} />{formatFecha(tarea.fechaLimite)}</span>
-        {tarea.tiempoEstimadoHoras && (
-          <span><Clock size={10} strokeWidth={2.5} style={{ marginRight: 4, verticalAlign: 'middle' }} />{tarea.tiempoEstimadoHoras}h est.</span>
-        )}
-        {tarea.tiempoRealHoras != null && (
-          <span><CheckCircle2 size={10} strokeWidth={2.5} style={{ marginRight: 4, verticalAlign: 'middle' }} />{tarea.tiempoRealHoras}h real</span>
-        )}
+      {/* ── 4. BARRA DE AVANCE ── */}
+      {tarea.estado !== 'FINALIZADA' && avance > 0 && (
+        <div className="tc-avance-wrap">
+          <div className="tc-avance-header">
+            <span><TrendingUp size={10} strokeWidth={2.5} /> Avance</span>
+            <span style={{ color: avanceColor }}>{avance}%</span>
+          </div>
+          <div className="tc-avance-track">
+            <div className="tc-avance-fill" style={{ width: `${avance}%`, background: avanceColor }} />
+          </div>
+        </div>
+      )}
+
+      {/* ── ETIQUETAS ── */}
+      {tarea.etiquetas?.length > 0 && (
+        <div className="tc-tags-row">
+          {tarea.etiquetas.map(tag => (
+            <span key={tag} className="tc-tag">{tag}</span>
+          ))}
+        </div>
+      )}
+
+      {/* ── DIVISOR ── */}
+      <div className="tc-divider" />
+
+      {/* ── 5. FOOTER: tiempo (izq) · fecha + acciones (der) ── */}
+      <div className="tc-footer">
+
+        <div className="tc-footer-left">
+          {tarea.tiempoEstimadoHoras && (
+            <span className="tc-tiempo">
+              <Clock size={12} strokeWidth={2} />
+              {tarea.tiempoEstimadoHoras}h est.
+            </span>
+          )}
+          
+        </div>
+
+        <div className="tc-footer-right">
+          <span className="tc-fecha">
+            <Calendar size={11} strokeWidth={2} />
+            {formatFechaCompleta(tarea.fechaLimite)}
+          </span>
+
+          {!soloLectura && (
+            <div className="tc-acciones">
+              {tarea.estado !== 'FINALIZADA' && (
+                <button className="tc-btn-accion tc-btn-estado" onClick={() => onCambiarEstado(tarea)} title="Cambiar estado">
+                  <RefreshCw size={12} strokeWidth={2.5} />
+                </button>
+              )}
+              <button className="tc-btn-accion" onClick={() => onEditar(tarea)} title="Editar">
+                <Pencil size={12} strokeWidth={2} />
+              </button>
+              <button className="tc-btn-accion" onClick={() => onVerHistorial(tarea.id)} title="Ver historial">
+                <ScrollText size={12} strokeWidth={2} />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Botón cambiar estado */}
-      {tarea.estado !== 'FINALIZADA' && (
-        <button
-          className="tarea-estado-btn"
-          onClick={() => onCambiarEstado(tarea)}
-        >
+      {/* Botón cambiar estado para TECNICO */}
+      {soloLectura && tarea.estado !== 'FINALIZADA' && (
+        <button className="tc-btn-cambio-estado" onClick={() => onCambiarEstado(tarea)}>
           <RefreshCw size={13} strokeWidth={2.5} />
           Cambiar estado
         </button>

@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
 import {
   Wrench, LayoutDashboard, ClipboardList,
-  Users, CheckSquare, LogOut, Menu, X,
+  Users, CheckSquare, LogOut, Menu, X, Tag,
 } from 'lucide-react';
 import NotificacionBadge from './NotificacionBadge';
 import '../../styles/navbar.css';
@@ -22,7 +22,6 @@ export default function Navbar() {
   return (
     <div className="layout">
 
-      {/* ══ SIDEBAR — flex column directo, sin wrappers ══ */}
       <aside className={`sidebar ${menuAbierto ? 'sidebar-abierto' : ''}`}>
 
         {/* Logo */}
@@ -59,6 +58,7 @@ export default function Navbar() {
               </NavLink>
             </>
           )}
+
           {esAdmin() && (
             <>
               <span className="sidebar-seccion">Administración</span>
@@ -66,8 +66,13 @@ export default function Navbar() {
                 <span className="sidebar-link-icon"><Users size={16} strokeWidth={2} /></span>
                 Usuarios
               </NavLink>
+              <NavLink to="/categorias" className="sidebar-link">
+                <span className="sidebar-link-icon"><Tag size={16} strokeWidth={2} /></span>
+                Categorías
+              </NavLink>
             </>
           )}
+
           {esTecnico() && (
             <>
               <span className="sidebar-seccion">Mi trabajo</span>
@@ -79,7 +84,6 @@ export default function Navbar() {
           )}
         </nav>
 
-        {/* Logout — directo en .sidebar, flex: 1 del nav lo empuja abajo */}
         <button className="sidebar-bottom-link" onClick={handleLogout}>
           <span className="sidebar-link-icon"><LogOut size={16} strokeWidth={2} /></span>
           Cerrar sesión
@@ -87,7 +91,6 @@ export default function Navbar() {
 
       </aside>
 
-      {/* Botón móvil */}
       <button className="menu-toggle" onClick={() => setMenuAbierto(!menuAbierto)}>
         {menuAbierto ? <X size={18} /> : <Menu size={18} />}
       </button>

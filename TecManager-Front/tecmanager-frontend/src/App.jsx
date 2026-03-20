@@ -4,16 +4,16 @@ import { useAuth } from './context/useAuth';
 import PrivateRoute from './components/layout/PrivateRoute';
 import Navbar from './components/layout/Navbar';
 
-import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
-import UsuariosPage from './pages/UsuariosPage';
-import TareasPage from './pages/TareasPage';
-import MisTareasPage from './pages/MisTareasPage';
-import HistorialPage from './pages/HistorialPage';
+import LoginPage      from './pages/LoginPage';
+import DashboardPage  from './pages/DashboardPage';
+import UsuariosPage   from './pages/UsuariosPage';
+import TareasPage     from './pages/TareasPage';
+import MisTareasPage  from './pages/MisTareasPage';
+import HistorialPage  from './pages/HistorialPage';
+import CategoriasPage from './pages/CategoriasPage';
 
 import './styles/global.css';
 
-// ✅ Este componente debe estar DENTRO del BrowserRouter y AuthProvider
 function RedirigirSegunRol() {
   const { esAdmin, esAsignador, esTecnico } = useAuth();
   if (esAdmin() || esAsignador()) return <Navigate to="/dashboard" replace />;
@@ -54,6 +54,13 @@ function AppRoutes() {
         <Route path="usuarios" element={
           <PrivateRoute roles={['ADMIN']}>
             <UsuariosPage />
+          </PrivateRoute>
+        } />
+
+        {/* ── NUEVA RUTA ── */}
+        <Route path="categorias" element={
+          <PrivateRoute roles={['ADMIN']}>
+            <CategoriasPage />
           </PrivateRoute>
         } />
 

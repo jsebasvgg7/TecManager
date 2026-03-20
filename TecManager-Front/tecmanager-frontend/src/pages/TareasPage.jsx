@@ -8,46 +8,87 @@ import { Plus, Search, RefreshCw, AlertTriangle } from 'lucide-react';
 import '../styles/tareas.css';
 
 export default function TareasPage() {
-  const [tareas, setTareas]           = useState([]);
-  const [cargando, setCargando]       = useState(true);
-  const [error, setError]             = useState('');
-  const [exito, setExito]             = useState('');
-  const [mostrarForm, setMostrarForm] = useState(false);
-  const [tareaEditar, setTareaEditar] = useState(null);
-  const [tareaEstado, setTareaEstado] = useState(null);
-  const [filtroEstado, setFiltroEstado]       = useState('TODOS');
+  const [tareas,          setTareas]          = useState([]);
+  const [cargando,        setCargando]        = useState(true);
+  const [error,           setError]           = useState('');
+  const [exito,           setExito]           = useState('');
+  const [mostrarForm,     setMostrarForm]     = useState(false);
+  const [tareaEditar,     setTareaEditar]     = useState(null);
+  const [tareaEstado,     setTareaEstado]     = useState(null);
+  const [filtroEstado,    setFiltroEstado]    = useState('TODOS');
   const [filtroPrioridad, setFiltroPrioridad] = useState('TODOS');
-  const [busqueda, setBusqueda]       = useState('');
+  const [filtroCategoria, setFiltroCategoria] = useState('TODOS');
+  const [busqueda,        setBusqueda]        = useState('');
+  const [categorias,      setCategorias]      = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => { cargarTareas(); }, []);
+  useEffect(() => {
+    cargarTareas();
+    api.get('/categorias/activas')
+      .then(r => setCategorias(r.data))
+      .catch(() => {});
+  }, []);
 
   const cargarTareas = async () => {
-    try { setCargando(true); const r = await api.get('/tareas'); setTareas(r.data); }
-    catch { setError('Error al cargar tareas'); }
-    finally { setCargando(false); }
+    try {
+      setCargando(true);
+      const r = await api.get('/tareas');
+      setTareas(r.data);
+    } catch {
+      setError('Error al cargar tareas');
+    } finally {
+      setCargando(false);
+    }
   };
 
   const handleGuardar = async (datos) => {
     try {
-      if (tareaEditar) { await api.put(`/tareas/${tareaEditar.id}`, datos); mostrarExito('Tarea actualizada'); }
-      else { await api.post('/tareas', datos); mostrarExito('Tarea creada'); }
-      setMostrarForm(false); setTareaEditar(null); cargarTareas();
-    } catch (err) { throw new Error(err.response?.data?.mensaje || 'Error al guardar'); }
+      if (tareaEditar) {
+        await api.put(`/tareas/${tareaEditar.id}`, datos);
+        mostrarExito('Tarea actualizada');
+      } else {
+        await api.post('/tareas', datos);
+        mostrarExito('Tarea creada');
+      }
+      setMostrarForm(false);
+      setTareaEditar(null);
+      cargarTareas();
+    } catch (err) {
+      throw new Error(err.response?.data?.mensaje || 'Error al guardar');
+    }
   };
 
   const handleCambiarEstado = async (datos) => {
     try {
       await api.patch(`/tareas/${tareaEstado.id}/estado`, datos);
-      mostrarExito('Estado actualizado'); setTareaEstado(null); cargarTareas();
-    } catch (err) { throw new Error(err.response?.data?.mensaje || 'Error al cambiar estado'); }
+      mostrarExito('Estado actualizado');
+      setTareaEstado(null);
+      cargarTareas();
+    } catch (err) {
+      throw new Error(err.response?.data?.mensaje || 'Error al cambiar estado');
+    }
   };
 
-  const mostrarExito = (msg) => { setExito(msg); setTimeout(() => setExito(''), 3000); };
+  const handleEliminar = async (id) => {
+    if (!window.confirm('¿Eliminar esta tarea? Esta acción no se puede deshacer.')) return;
+    try {
+      await api.delete(`/tareas/${id}`);
+      mostrarExito('Tarea eliminada');
+      cargarTareas();
+    } catch {
+      setError('Error al eliminar la tarea');
+    }
+  };
+
+  const mostrarExito = (msg) => {
+    setExito(msg);
+    setTimeout(() => setExito(''), 3000);
+  };
 
   const tareasFiltradas = tareas.filter(t =>
-    (filtroEstado === 'TODOS' || t.estado === filtroEstado) &&
+    (filtroEstado    === 'TODOS' || t.estado    === filtroEstado)    &&
     (filtroPrioridad === 'TODOS' || t.prioridad === filtroPrioridad) &&
+    (filtroCategoria === 'TODOS' || t.categoriaId === filtroCategoria) &&
     t.titulo.toLowerCase().includes(busqueda.toLowerCase())
   );
 
@@ -70,7 +111,8 @@ export default function TareasPage() {
             )}
           </p>
         </div>
-        <button className="btn btn-primario" onClick={() => { setTareaEditar(null); setMostrarForm(true); }}>
+        <button className="btn btn-primario"
+          onClick={() => { setTareaEditar(null); setMostrarForm(true); }}>
           <Plus size={15} strokeWidth={2.5} /> Nueva Tarea
         </button>
       </div>
@@ -82,8 +124,9 @@ export default function TareasPage() {
       <div className="filtros-bar">
         <div className="filtro-search-wrap">
           <Search size={14} strokeWidth={2} className="filtro-search-icon" />
-          <input type="text" placeholder="Buscar tarea..." value={busqueda}
-            onChange={e => setBusqueda(e.target.value)} className="filtro-input filtro-input-search" />
+          <input type="text" placeholder="Buscar tarea..."
+            value={busqueda} onChange={e => setBusqueda(e.target.value)}
+            className="filtro-input filtro-input-search" />
         </div>
         <select value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)} className="filtro-select">
           <option value="TODOS">Todos los estados</option>
@@ -98,6 +141,14 @@ export default function TareasPage() {
           <option value="MEDIA">Media</option>
           <option value="BAJA">Baja</option>
         </select>
+        {categorias.length > 0 && (
+          <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)} className="filtro-select">
+            <option value="TODOS">Todas las categorías</option>
+            {categorias.map(c => (
+              <option key={c.id} value={c.id}>{c.nombre}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Grid */}
@@ -108,10 +159,13 @@ export default function TareasPage() {
       ) : (
         <div className="tareas-grid">
           {tareasFiltradas.map(tarea => (
-            <TareaCard key={tarea.id} tarea={tarea}
+            <TareaCard
+              key={tarea.id}
+              tarea={tarea}
               onEditar={(t) => { setTareaEditar(t); setMostrarForm(true); }}
               onCambiarEstado={(t) => setTareaEstado(t)}
               onVerHistorial={(id) => navigate(`/historial/${id}`)}
+              onEliminar={handleEliminar}
             />
           ))}
         </div>

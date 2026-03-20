@@ -25,45 +25,61 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsServiceImpl  userDetailsService;
 
     @Autowired
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
                           UserDetailsServiceImpl userDetailsService) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.userDetailsService = userDetailsService;
+        this.userDetailsService      = userDetailsService;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
+            // Usa el CorsConfig.java que ya existe — no se define corsConfigurationSource aquí
             .cors(cors -> cors.configure(http))
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .sessionManagement(sm ->
+                sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+
+                // ── Públicos ──
                 .requestMatchers("/api/auth/**").permitAll()
+
+                // ── Usuarios ──
                 .requestMatchers(HttpMethod.GET, "/api/usuarios/rol/**").hasAnyRole("ADMIN", "ASIGNADOR")
                 .requestMatchers(HttpMethod.GET, "/api/usuarios/activos").hasAnyRole("ADMIN", "ASIGNADOR")
                 .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
 
-                // Tareas
-                .requestMatchers(HttpMethod.GET, "/api/tareas/mis-tareas").hasRole("TECNICO")
-                .requestMatchers(HttpMethod.PATCH, "/api/tareas/*/estado").hasAnyRole("TECNICO", "ADMIN", "ASIGNADOR")
-                .requestMatchers("/api/tareas/**").hasAnyRole("ADMIN", "ASIGNADOR", "TECNICO")
+                // ── Categorías: lectura para todos, escritura solo ADMIN ──
+                .requestMatchers(HttpMethod.GET,    "/api/categorias/**").authenticated()
+                .requestMatchers(HttpMethod.POST,   "/api/categorias/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT,    "/api/categorias/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/categorias/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH,  "/api/categorias/**").hasRole("ADMIN")
 
-                // Reportes
+                // ── Tareas ──
+                .requestMatchers(HttpMethod.GET,    "/api/tareas/mis-tareas").hasRole("TECNICO")
+                .requestMatchers(HttpMethod.POST,   "/api/tareas").hasAnyRole("ADMIN", "ASIGNADOR")
+                .requestMatchers(HttpMethod.PUT,    "/api/tareas/**").hasAnyRole("ADMIN", "ASIGNADOR")
+                .requestMatchers(HttpMethod.DELETE, "/api/tareas/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH,  "/api/tareas/**").authenticated()
+                .requestMatchers(HttpMethod.GET,    "/api/tareas/**").authenticated()
+
+                // ── Reportes ──
                 .requestMatchers(HttpMethod.GET, "/api/reportes").hasRole("ADMIN")
                 .requestMatchers("/api/reportes/**").hasAnyRole("ADMIN", "ASIGNADOR")
 
-                // Historial — ASIGNADOR también puede ver
+                // ── Historial ──
                 .requestMatchers("/api/historial/**").hasAnyRole("ADMIN", "ASIGNADOR")
 
-                // Dashboard
+                // ── Dashboard ──
                 .requestMatchers("/api/dashboard/**").hasAnyRole("ADMIN", "ASIGNADOR")
 
-                // Notificaciones
+                // ── Notificaciones ──
                 .requestMatchers("/api/notificaciones/**").authenticated()
+
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter,
@@ -93,5 +109,4 @@ public class SecurityConfig {
             AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
 }

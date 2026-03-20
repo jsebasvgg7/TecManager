@@ -1,0 +1,343 @@
+/* ══════════════════════════════════════════════════════
+   TAREA CARD — tipografía uniforme y espaciado respirable
+   Paleta: Charcoal #262424 · Almond #EEE5DA · Cream #f0ece7
+══════════════════════════════════════════════════════ */
+
+.tc-card {
+  background: #ffffff;
+  border: 1px solid rgba(238, 229, 218, 0.80);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(38, 36, 36, 0.06);
+  transition: box-shadow 0.22s ease, transform 0.18s ease, border-color 0.18s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tc-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #EEE5DA, #d9cfc4);
+  border-radius: 16px 16px 0 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.tc-card:hover {
+  box-shadow: 0 6px 22px rgba(38, 36, 36, 0.10);
+  transform: translateY(-2px);
+  border-color: #d9cfc4;
+}
+
+.tc-card:hover::before { opacity: 1; }
+
+.tc-card-vencida {
+  border-color: #fca5a5 !important;
+  background: linear-gradient(135deg, #fff8f8 0%, #ffffff 60%);
+}
+.tc-card-vencida::before {
+  background: linear-gradient(90deg, #ef4444, #fca5a5) !important;
+  opacity: 1 !important;
+}
+
+.tc-card-sla {
+  border-color: #fed7aa !important;
+  background: linear-gradient(135deg, #fffbf7 0%, #ffffff 60%);
+}
+.tc-card-sla::before {
+  background: linear-gradient(90deg, #f59e0b, #fcd34d) !important;
+  opacity: 1 !important;
+}
+
+/* ── FILA SUPERIOR ── */
+.tc-row-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tc-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(238, 229, 218, 0.70);
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.tc-header-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* Título — un solo tamaño para toda la card */
+.tc-titulo {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: #262424;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tc-subtitulo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #9b9898;
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 400;
+}
+
+/* Botón icono superior (eliminar / favorito) */
+.tc-btn-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  border: 1px solid #EEE5DA;
+  background: #f7f4f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9b9898;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.tc-btn-icon:hover {
+  background: #262424;
+  color: #EEE5DA;
+  border-color: #262424;
+}
+
+.tc-btn-danger { color: #ef4444; border-color: #fca5a580; background: #fff8f8; }
+.tc-btn-danger:hover { background: #ef4444 !important; color: #fff !important; border-color: #ef4444 !important; }
+
+/* ── CHIPS — todos al mismo tamaño ── */
+.tc-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.tc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;       /* un solo tamaño para todos los chips */
+  font-weight: 700;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.tc-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tc-chip-pendiente  { background: #fef3c7; color: #92400e; }
+.tc-chip-proceso    { background: #dbeafe; color: #1e40af; }
+.tc-chip-finalizada { background: #dcfce7; color: #166534; }
+.tc-chip-espera     { background: #f3e8ff; color: #6b21a8; }
+.tc-chip-alta       { background: #fee2e2; color: #991b1b; }
+.tc-chip-media      { background: #fef3c7; color: #92400e; }
+.tc-chip-baja       { background: #dcfce7; color: #166534; }
+.tc-chip-cat        { background: rgba(238,229,218,0.45); border: 1px solid rgba(238,229,218,0.80); }
+
+/* ── DESCRIPCIÓN ── */
+.tc-desc {
+  font-size: 13px;
+  color: #6b6868;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 400;
+}
+
+/* ── AVANCE ── */
+.tc-avance-wrap { display: flex; flex-direction: column; gap: 5px; }
+
+.tc-avance-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #9b9898;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+}
+
+.tc-avance-header span:first-child { display: flex; align-items: center; gap: 4px; }
+
+.tc-avance-track {
+  width: 100%;
+  height: 4px;
+  background: #f0ece7;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.tc-avance-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── ETIQUETAS ── */
+.tc-tags-row { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.tc-tag {
+  padding: 2px 8px;
+  background: #f0ece7;
+  color: #3a3737;
+  border-radius: 100px;
+  font-size: 11px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  border: 1px solid #EEE5DA;
+}
+
+/* ── DIVISOR ── */
+.tc-divider { height: 1px; background: #f0ece7; }
+
+/* ── FOOTER — todo a la misma escala ── */
+.tc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tc-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* tiempo estimado — mismo tamaño que el resto, NO gigante */
+.tc-tiempo {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #262424;
+}
+
+.tc-tiempo-real {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #22c55e;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tc-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tc-fecha {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #9b9898;
+  font-family: 'Nunito Sans', sans-serif;
+  white-space: nowrap;
+}
+
+/* ── BOTONES DE ACCIÓN ── */
+.tc-acciones { display: flex; gap: 5px; align-items: center; }
+
+.tc-btn-accion {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid #EEE5DA;
+  background: #f7f4f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b6868;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tc-btn-accion:hover {
+  background: #262424;
+  color: #EEE5DA;
+  border-color: #262424;
+}
+
+.tc-btn-estado {
+  background: #262424;
+  color: #EEE5DA;
+  border-color: #262424;
+}
+
+.tc-btn-estado:hover {
+  background: #3a3737 !important;
+  border-color: #3a3737 !important;
+}
+
+/* ── CAMBIAR ESTADO (técnico) ── */
+.tc-btn-cambio-estado {
+  width: 100%;
+  padding: 9px;
+  background: #f7f4f0;
+  border: 1.5px solid #EEE5DA;
+  border-radius: 10px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #262424;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.tc-btn-cambio-estado:hover {
+  background: #262424;
+  border-color: #262424;
+  color: #EEE5DA;
+}
+
+@media (max-width: 480px) {
+  .tc-footer { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .tc-footer-right { width: 100%; justify-content: space-between; }
+}
