@@ -192,16 +192,18 @@ public class TareaService {
         EstadoTarea estadoAnterior = tarea.getEstado();
         EstadoTarea nuevoEstado    = request.getNuevoEstado();
 
-        if (nuevoEstado == EstadoTarea.EN_PROCESO && tarea.getFechaInicioProceso() == null)
-            tarea.setFechaInicioProceso(LocalDateTime.now());
-
         if (nuevoEstado == EstadoTarea.FINALIZADA) {
-            tarea.setFechaFinalizacion(LocalDateTime.now());
-            tarea.setPorcentajeAvance(100);
-            if (tarea.getFechaInicioProceso() != null) {
-                long horas = java.time.Duration.between(
-                        tarea.getFechaInicioProceso(), tarea.getFechaFinalizacion()).toHours();
-                tarea.setTiempoRealHoras((int) horas);
+            LocalDateTime ahora = LocalDateTime.now();
+            tarea.setFechaFinalizacion(ahora);
+
+            LocalDateTime inicio = tarea.getFechaInicioProceso() != null
+            ? tarea.getFechaInicioProceso()
+            : tarea.getFechaCreacion();
+
+            if (inicio != null) {
+                long minutos = java.time.Duration.between(inicio, ahora).toMinutes();
+                int horas = (int) Math.max(1, Math.ceil(minutos / 60.0));
+                tarea.setTiempoRealHoras(horas);
             }
         }
 
