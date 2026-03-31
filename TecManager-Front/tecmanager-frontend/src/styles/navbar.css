@@ -283,3 +283,13 @@ html, body {
   }
   .menu-toggle { display: flex; }
 }
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .sidebar {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .main-contenido {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+}

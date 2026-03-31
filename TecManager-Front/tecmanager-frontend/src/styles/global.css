@@ -332,3 +332,13 @@ tr:hover td { background: #faf8f5; }
   .filtros-bar { flex-direction: column; }
   .filtro-input, .filtro-select { width: 100%; }
 }
+
+html, body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.main-contenido {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}

@@ -27,14 +27,30 @@ export default function HistorialPage() {
   const cargarDatos = async () => {
     try {
       setCargando(true);
-      const [hRes, rRes, tRes] = await Promise.all([
-        api.get(`/historial/tarea/${tareaId}`),
-        api.get(`/reportes/tarea/${tareaId}`),
-        api.get(`/tareas/${tareaId}`),
-      ]);
-      setHistorial(hRes.data); setReportes(rRes.data); setTarea(tRes.data);
-    } catch { setError('Error al cargar el historial'); }
-    finally  { setCargando(false); }
+
+      const tareaRes = await api.get(`/tareas/${tareaId}`);
+      setTarea(tareaRes.data);
+
+    try {
+      const historialRes = await api.get(`/historial/tarea/${tareaId}`);
+      setHistorial(historialRes.data || []);
+    } catch {
+      setHistorial([]);
+    }
+
+    // Reportes — opcional, puede estar vacío
+    try {
+      const reportesRes = await api.get(`/reportes/tarea/${tareaId}`);
+      setReportes(reportesRes.data || []);
+    } catch {
+      setReportes([]);
+    }
+
+  } catch {
+    setError('Error al cargar los datos de la tarea');
+  } finally {
+    setCargando(false);
+  }
   };
 
   const fmt = (fecha) => fecha
