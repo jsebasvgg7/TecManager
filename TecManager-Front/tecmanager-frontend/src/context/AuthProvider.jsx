@@ -7,18 +7,28 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const cargarSesion = () => {
-      try {
-        const token = localStorage.getItem('token');
-        const usuarioGuardado = localStorage.getItem('usuario');
-        if (token && usuarioGuardado) {
-          setUsuario(JSON.parse(usuarioGuardado));
-        }
-      } catch {
+  try {
+    const token = localStorage.getItem('token');
+    const usuarioGuardado = localStorage.getItem('usuario');
+
+    if (token && usuarioGuardado) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const expirado = payload.exp * 1000 < Date.now();
+
+      if (expirado) {
         localStorage.clear();
-      } finally {
         setCargando(false);
+        return;
       }
-    };
+
+      setUsuario(JSON.parse(usuarioGuardado));
+    }
+  } catch {
+    localStorage.clear();
+  } finally {
+    setCargando(false);
+  }
+};
     cargarSesion();
   }, []);
 

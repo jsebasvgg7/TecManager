@@ -217,3 +217,24 @@ html, body { height: 100%; overflow: hidden; }
   .main-contenido { padding: 16px; }
   .menu-toggle { display: flex; }
 }
+
+/*
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║                  ⚠️  NO TOCAR  ⚠️                            ║
+║                                                               ║
+║        especialmente sebastian vega tiene proibido tocar      ║
+║                                                               ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+*/
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .sidebar {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .main-contenido {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+}
