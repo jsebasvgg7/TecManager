@@ -1,103 +1,134 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
 import {
   Wrench, LayoutDashboard, ClipboardList,
   Users, CheckSquare, LogOut, Menu, X, Tag,
 } from 'lucide-react';
 import NotificacionBadge from './NotificacionBadge';
+import TopBar from './TopBar';
 import '../../styles/navbar.css';
+
+// Map route → readable page title
+const TITULOS = {
+  '/dashboard':  'Dashboard',
+  '/tareas':     'Tareas',
+  '/usuarios':   'Usuarios',
+  '/categorias': 'Categorías',
+  '/mis-tareas': 'Mis Tareas',
+};
 
 export default function Navbar() {
   const { usuario, logout, esAdmin, esAsignador, esTecnico } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [menuAbierto, setMenuAbierto] = useState(false);
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
-  const getBadgeRol = (rol) => ({
-    ADMIN: 'badge-admin', ASIGNADOR: 'badge-asignador', TECNICO: 'badge-tecnico',
-  }[rol] || '');
+  const paginaActual = TITULOS[location.pathname] || '';
 
   return (
     <div className="layout">
 
+      {/* ── SIDEBAR ── */}
       <aside className={`sidebar ${menuAbierto ? 'sidebar-abierto' : ''}`}>
 
-        {/* Logo */}
+        {/* Logo mark */}
         <div className="sidebar-logo">
           <div className="sidebar-logo-icon">
-            <Wrench size={17} strokeWidth={2.2} />
-          </div>
-          <span className="sidebar-logo-texto">TecManager</span>
-        </div>
-
-        {/* Usuario */}
-        <div className="sidebar-usuario">
-          <div className="sidebar-avatar">
-            {usuario?.nombre?.charAt(0).toUpperCase()}
-          </div>
-          <div className="sidebar-usuario-info">
-            <span className="sidebar-usuario-nombre">{usuario?.nombre}</span>
-            <span className={`badge ${getBadgeRol(usuario?.rol)}`}>{usuario?.rol}</span>
+            <Wrench size={15} strokeWidth={2.5} />
           </div>
         </div>
 
-        {/* Nav */}
+        {/* Nav icons */}
         <nav className="sidebar-nav">
           {(esAdmin() || esAsignador()) && (
             <>
-              <span className="sidebar-seccion">Principal</span>
-              <NavLink to="/dashboard" className="sidebar-link">
-                <span className="sidebar-link-icon"><LayoutDashboard size={16} strokeWidth={2} /></span>
-                Dashboard
+              <NavLink
+                to="/dashboard"
+                className="sidebar-link"
+                data-label="Dashboard"
+                onClick={() => setMenuAbierto(false)}
+              >
+                <span className="sidebar-link-icon">
+                  <LayoutDashboard size={17} strokeWidth={1.9} />
+                </span>
               </NavLink>
-              <NavLink to="/tareas" className="sidebar-link">
-                <span className="sidebar-link-icon"><ClipboardList size={16} strokeWidth={2} /></span>
-                Tareas
+              <NavLink
+                to="/tareas"
+                className="sidebar-link"
+                data-label="Tareas"
+                onClick={() => setMenuAbierto(false)}
+              >
+                <span className="sidebar-link-icon">
+                  <ClipboardList size={17} strokeWidth={1.9} />
+                </span>
               </NavLink>
             </>
           )}
 
           {esAdmin() && (
             <>
-              <span className="sidebar-seccion">Administración</span>
-              <NavLink to="/usuarios" className="sidebar-link">
-                <span className="sidebar-link-icon"><Users size={16} strokeWidth={2} /></span>
-                Usuarios
+              <NavLink
+                to="/usuarios"
+                className="sidebar-link"
+                data-label="Usuarios"
+                onClick={() => setMenuAbierto(false)}
+              >
+                <span className="sidebar-link-icon">
+                  <Users size={17} strokeWidth={1.9} />
+                </span>
               </NavLink>
-              <NavLink to="/categorias" className="sidebar-link">
-                <span className="sidebar-link-icon"><Tag size={16} strokeWidth={2} /></span>
-                Categorías
+              <NavLink
+                to="/categorias"
+                className="sidebar-link"
+                data-label="Categorías"
+                onClick={() => setMenuAbierto(false)}
+              >
+                <span className="sidebar-link-icon">
+                  <Tag size={17} strokeWidth={1.9} />
+                </span>
               </NavLink>
             </>
           )}
 
           {esTecnico() && (
-            <>
-              <span className="sidebar-seccion">Mi trabajo</span>
-              <NavLink to="/mis-tareas" className="sidebar-link">
-                <span className="sidebar-link-icon"><CheckSquare size={16} strokeWidth={2} /></span>
-                Mis Tareas <NotificacionBadge />
-              </NavLink>
-            </>
+            <NavLink
+              to="/mis-tareas"
+              className="sidebar-link"
+              data-label="Mis Tareas"
+              onClick={() => setMenuAbierto(false)}
+            >
+              <span className="sidebar-link-icon">
+                <CheckSquare size={17} strokeWidth={1.9} />
+              </span>
+              <NotificacionBadge />
+            </NavLink>
           )}
         </nav>
 
+        {/* Logout */}
         <button className="sidebar-bottom-link" onClick={handleLogout}>
-          <span className="sidebar-link-icon"><LogOut size={16} strokeWidth={2} /></span>
-          Cerrar sesión
+          <span className="sidebar-link-icon">
+            <LogOut size={17} strokeWidth={1.9} />
+          </span>
         </button>
 
       </aside>
 
+      {/* ── MOBILE TOGGLE ── */}
       <button className="menu-toggle" onClick={() => setMenuAbierto(!menuAbierto)}>
-        {menuAbierto ? <X size={18} /> : <Menu size={18} />}
+        {menuAbierto ? <X size={17} /> : <Menu size={17} />}
       </button>
 
-      <main className="main-contenido">
-        <Outlet />
-      </main>
+      {/* ── MAIN COLUMN ── */}
+      <div className="main-contenido-wrapper">
+        <TopBar titulo={paginaActual} />
+        <main className="main-contenido">
+          <Outlet />
+        </main>
+      </div>
 
     </div>
   );

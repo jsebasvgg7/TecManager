@@ -3,31 +3,32 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-const COLORES = { Alta: '#ef4444', Media: '#f59e0b', Baja: '#22c55e' };
+// Vivid but harmonious — red/amber/green (semantic + warm)
+const COLORES = { Alta: '#e85a4a', Media: '#f0a830', Baja: '#34c478' };
 
 const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
-      background: '#262424', color: '#EEE5DA',
-      padding: '10px 14px', borderRadius: '10px',
-      fontSize: '13px', fontFamily: 'Nunito, sans-serif',
-      boxShadow: '0 8px 24px rgba(38,36,36,0.25)',
+      background: '#1e1c1a', color: '#f7f4ef',
+      padding: '9px 13px', borderRadius: '8px',
+      fontSize: '12px', fontFamily: 'Nunito, sans-serif',
+      boxShadow: '0 6px 20px rgba(30,28,26,0.20)',
     }}>
       <div style={{ fontWeight: 800, marginBottom: 2 }}>{payload[0].name}</div>
-      <div style={{ color: '#d9cfc4' }}>{payload[0].value} tareas</div>
+      <div style={{ color: 'rgba(247,244,239,0.60)', fontSize: 11 }}>{payload[0].value} tareas</div>
     </div>
   );
 };
 
 const RADIAN = Math.PI / 180;
-const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, name }) => {
-  const r   = innerRadius + (outerRadius - innerRadius) * 0.5;
-  const x   = cx + r * Math.cos(-midAngle * RADIAN);
-  const y   = cy + r * Math.sin(-midAngle * RADIAN);
+const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+  const r = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + r * Math.cos(-midAngle * RADIAN);
+  const y = cy + r * Math.sin(-midAngle * RADIAN);
   return percent > 0.08 ? (
     <text x={x} y={y} fill="#fff" textAnchor="middle" dominantBaseline="central"
-      style={{ fontSize: 12, fontFamily: 'Nunito, sans-serif', fontWeight: 800 }}>
+      style={{ fontSize: 11, fontFamily: 'Nunito, sans-serif', fontWeight: 800 }}>
       {`${(percent * 100).toFixed(0)}%`}
     </text>
   ) : null;
@@ -41,20 +42,21 @@ export default function GraficaPrioridad({ datos }) {
   ].filter(d => d.valor > 0);
 
   if (!data.length) return (
-    <div style={{ textAlign:'center', padding: '40px 0', color: '#6b6868', fontSize: 13 }}>
+    <div style={{ textAlign: 'center', padding: '40px 0', color: '#9c9790', fontSize: 12 }}>
       Sin tareas registradas
     </div>
   );
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-      <ResponsiveContainer width="60%" height={220}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+      <ResponsiveContainer width="55%" height={210}>
         <PieChart>
           <Pie
             data={data} dataKey="valor" nameKey="name"
             cx="50%" cy="50%"
-            innerRadius={55} outerRadius={90}
+            innerRadius={52} outerRadius={88}
             labelLine={false} label={renderLabel}
+            strokeWidth={0}
           >
             {data.map((entry) => (
               <Cell key={entry.name} fill={COLORES[entry.name]} />
@@ -64,8 +66,8 @@ export default function GraficaPrioridad({ datos }) {
         </PieChart>
       </ResponsiveContainer>
 
-      {/* Leyenda custom */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {/* Legend */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {data.map(d => (
           <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
@@ -75,9 +77,9 @@ export default function GraficaPrioridad({ datos }) {
             <div>
               <div style={{
                 fontFamily: 'Nunito, sans-serif', fontWeight: 800,
-                fontSize: 13, color: '#262424',
+                fontSize: 12.5, color: '#1e1c1a',
               }}>{d.name}</div>
-              <div style={{ fontSize: 11, color: '#6b6868' }}>{d.valor} tareas</div>
+              <div style={{ fontSize: 11, color: '#9c9790' }}>{d.valor} tareas</div>
             </div>
           </div>
         ))}

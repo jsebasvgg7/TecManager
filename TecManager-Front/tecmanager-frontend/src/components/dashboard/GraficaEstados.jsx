@@ -3,19 +3,20 @@ import {
   Tooltip, ResponsiveContainer, Cell
 } from 'recharts';
 
-const COLORES = ['#d9cfc4', '#93c5fd', '#86efac', '#d8b4fe', '#fca5a5'];
+// Vivid but harmonious — all warm/cool tones from the same palette family
+const COLORES = ['#f0a830', '#4a7de8', '#34c478', '#2aabb8', '#e85a4a'];
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
-      background: '#262424', color: '#EEE5DA',
-      padding: '10px 14px', borderRadius: '10px',
-      fontSize: '13px', fontFamily: 'Nunito, sans-serif',
-      boxShadow: '0 8px 24px rgba(38,36,36,0.25)',
+      background: '#1e1c1a', color: '#f7f4ef',
+      padding: '9px 13px', borderRadius: '8px',
+      fontSize: '12px', fontFamily: 'Nunito, sans-serif',
+      boxShadow: '0 6px 20px rgba(30,28,26,0.20)',
     }}>
       <div style={{ fontWeight: 800, marginBottom: 2 }}>{label}</div>
-      <div style={{ color: '#d9cfc4' }}>{payload[0].value} tareas</div>
+      <div style={{ color: 'rgba(247,244,239,0.60)', fontSize: 11 }}>{payload[0].value} tareas</div>
     </div>
   );
 };
@@ -30,21 +31,21 @@ export default function GraficaEstados({ datos }) {
   ];
 
   return (
-    <ResponsiveContainer width="100%" height={230}>
-      <BarChart data={data} margin={{ top: 4, right: 8, left: -24, bottom: 0 }} barCategoryGap="35%">
-        <CartesianGrid strokeDasharray="3 3" stroke="#f0ece7" vertical={false} />
+    <ResponsiveContainer width="100%" height={220}>
+      <BarChart data={data} margin={{ top: 4, right: 8, left: -24, bottom: 0 }} barCategoryGap="38%">
+        <CartesianGrid strokeDasharray="3 4" stroke="#ede9e2" vertical={false} />
         <XAxis
           dataKey="nombre"
-          tick={{ fontSize: 11, fill: '#6b6868', fontFamily: 'Nunito Sans, sans-serif', fontWeight: 600 }}
+          tick={{ fontSize: 10.5, fill: '#9c9790', fontFamily: 'Nunito Sans, sans-serif', fontWeight: 600 }}
           axisLine={false} tickLine={false}
         />
         <YAxis
           allowDecimals={false}
-          tick={{ fontSize: 11, fill: '#6b6868', fontFamily: 'Nunito Sans, sans-serif' }}
+          tick={{ fontSize: 10.5, fill: '#9c9790', fontFamily: 'Nunito Sans, sans-serif' }}
           axisLine={false} tickLine={false}
         />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(238,229,218,0.30)' }} />
-        <Bar dataKey="valor" radius={[6, 6, 0, 0]} maxBarSize={48}>
+        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(238,234,227,0.45)' }} />
+        <Bar dataKey="valor" radius={[5, 5, 0, 0]} maxBarSize={46}>
           {data.map((_, i) => (
             <Cell key={i} fill={COLORES[i % COLORES.length]} />
           ))}
