@@ -1,30 +1,37 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import GraficaEstados from '../components/dashboard/GraficaEstados';
 import GraficaPrioridad from '../components/dashboard/GraficaPrioridad';
 import {
-  ClipboardList, Clock, Wrench, CheckCircle2, AlertTriangle,
-  PauseCircle, Target, Timer, Flame, RefreshCw, TrendingUp,
-  TrendingDown, Minus, Users, Activity,
+  ClipboardList, Clock, CheckCircle2, AlertTriangle,
+  RefreshCw, TrendingUp, TrendingDown, Minus,
+  Target, Timer, Flame, Users, Activity,
+  ArrowUpRight, ArrowDownRight, Zap, Shield,
+  BarChart2, PieChart,
 } from 'lucide-react';
 import '../styles/dashboard.css';
 
-const METRICAS = [
-  { key: 'totalTareas',       label: 'Total Tareas',   icon: ClipboardList, bg: '#f0edf8', iconColor: '#6c3fbf', bar: '#9b6fdf' },
-  { key: 'tareasPendientes',  label: 'Pendientes',     icon: Clock,         bg: '#fef5e7', iconColor: '#c07a10', bar: '#f0a830' },
-  { key: 'tareasEnProceso',   label: 'En Proceso',     icon: Wrench,        bg: '#e8f0fc', iconColor: '#2a5abf', bar: '#4a7de8' },
-  { key: 'tareasFinalizadas', label: 'Finalizadas',    icon: CheckCircle2,  bg: '#e6f5ee', iconColor: '#1e8a50', bar: '#34c478' },
-  { key: 'tareasVencidas',    label: 'Vencidas',       icon: AlertTriangle, bg: '#fdecea', iconColor: '#c0392b', bar: '#e85a4a' },
-  { key: 'tareasEnEspera',    label: 'En Espera',      icon: PauseCircle,   bg: '#e8f4f8', iconColor: '#1a7a8a', bar: '#2aabb8' },
+const STATS = [
+  { key: 'totalTareas',      label: 'Total de tareas', icon: ClipboardList, accent: '#5a7de8', bg: '#eef1fc', trend: null },
+  { key: 'tareasPendientes', label: 'Pendientes',      icon: Clock,         accent: '#d4a428', bg: '#fdf5e0', trend: 'neutral' },
+  { key: 'tareasFinalizadas',label: 'Finalizadas',     icon: CheckCircle2,  accent: '#2eaa68', bg: '#e4f5ed', trend: 'up' },
+  { key: 'tareasVencidas',   label: 'Vencidas',        icon: AlertTriangle, accent: '#d95f50', bg: '#faeceb', trend: 'down' },
 ];
 
-// Format current date/time
+const TREND_ICON = {
+  up:      { icon: ArrowUpRight,   color: '#2eaa68', bg: '#e4f5ed' },
+  down:    { icon: ArrowDownRight, color: '#d95f50', bg: '#faeceb' },
+  neutral: { icon: Minus,          color: '#9c9790', bg: '#f0ece6' },
+};
+
 const ahora = new Intl.DateTimeFormat('es-CO', {
   weekday: 'short', day: 'numeric', month: 'short',
   hour: '2-digit', minute: '2-digit',
 }).format(new Date());
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
   const [datos, setDatos]       = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError]       = useState('');
@@ -45,184 +52,251 @@ export default function DashboardPage() {
 
   if (cargando) return (
     <div className="dash-loading">
-      <RefreshCw size={18} className="spin-icon" />
-      <span>Cargando métricas...</span>
+      <RefreshCw size={16} className="spin-icon" />
+      <span>Cargando métricas…</span>
     </div>
   );
   if (error) return <div className="alerta alerta-error">{error}</div>;
   if (!datos) return null;
 
-  const total = datos.totalTareas || 1;
+  const total     = datos.totalTareas || 1;
+  const globalPct = Math.round((datos.tareasFinalizadas / total) * 100);
 
   return (
     <div className="dash-root">
 
-      {/* ── HEADER — technical ── */}
       <div className="dash-header">
         <div className="dash-header-left">
-          <h1 className="dash-title">
-            Centro de control operativo
-          </h1>
+          <span className="dash-eyebrow">Panel operativo</span>
+          <h1 className="dash-title">Centro de control</h1>
         </div>
         <div className="dash-header-right">
           <span className="dash-timestamp">
             <Clock size={11} strokeWidth={2} />
-            Actualizado · {ahora}
+            {ahora}
           </span>
           <button className="dash-refresh-btn" onClick={cargarDashboard}>
-            <RefreshCw size={13} strokeWidth={2.5} />
+            <RefreshCw size={12} strokeWidth={2.5} />
             Sincronizar
           </button>
         </div>
       </div>
 
-      {/* ══ TWO-COLUMN BODY ══ */}
+      <div className="dash-stats-row">
+        {STATS.map(({ key, label, icon: Icon, accent, bg, trend }, i) => {
+          const val = datos[key] ?? 0;
+          const pct = key === 'totalTareas' ? 100 : Math.round((val / total) * 100);
+          const T   = trend ? TREND_ICON[trend] : null;
+          return (
+            <div className="stat-card" key={key} style={{ animationDelay: `${i * 60}ms` }}>
+              <div className="stat-card-top">
+                <div className="stat-icon-wrap" style={{ background: bg }}>
+                  <Icon size={15} strokeWidth={2} style={{ color: accent }} />
+                </div>
+                {T && (
+                  <div className="stat-trend-badge" style={{ background: T.bg }}>
+                    <T.icon size={12} strokeWidth={2.2} style={{ color: T.color }} />
+                  </div>
+                )}
+              </div>
+              <div className="stat-val">{val}</div>
+              <div className="stat-label">{label}</div>
+              <div className="stat-bar-track">
+                <div className="stat-bar-fill" style={{ width: `${pct}%`, background: accent }} />
+              </div>
+              <div className="stat-pct">{pct}%</div>
+            </div>
+          );
+        })}
+      </div>
+
       <div className="dash-body">
 
-        {/* ─── LEFT COLUMN ─── */}
-        <div className="dash-left">
+        <div className="dash-col dash-col-left">
 
-          {/* Métricas 3×2 */}
-          <div className="dash-metrics-grid">
-            {METRICAS.map(({ key, label, icon: Icon, bg, iconColor, bar }, i) => {
-              const val = datos[key] ?? 0;
-              const pct = Math.round((val / total) * 100);
-              return (
-                <div className="metric-card" key={key} style={{ animationDelay: `${i * 55}ms` }}>
-                  <div className="metric-top">
-                    <div className="metric-icon-wrap" style={{ background: bg }}>
-                      <Icon size={15} strokeWidth={2} style={{ color: iconColor }} />
-                    </div>
-                    <span className="metric-pct">
-                      {key === 'totalTareas' ? '100%' : `${pct}%`}
-                    </span>
-                  </div>
-                  <div className="metric-val">{val}</div>
-                  <div className="metric-label">{label}</div>
-                  <div className="metric-bar-track">
-                    <div
-                      className="metric-bar-fill"
-                      style={{ width: key === 'totalTareas' ? '100%' : `${pct}%`, background: bar }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* KPIs + Técnicos — side by side */}
-          <div className="dash-left-bottom">
-
-            {/* KPI Panel */}
-            <div className="dash-kpi-panel">
-              <h2 className="dash-section-title">Indicadores clave</h2>
-
-              <div className="kpi-item">
-                <div className="kpi-icon-wrap kpi-green"><Target size={15} strokeWidth={2} /></div>
+          <div className="dash-panel">
+            <div className="dash-panel-header">
+              <span className="dash-panel-title">Indicadores clave</span>
+              <Activity size={13} style={{ color: '#9c9790' }} />
+            </div>
+            <div className="kpi-stack">
+              <div className="kpi-row">
+                <div className="kpi-icon kpi-green"><Target size={14} strokeWidth={2} /></div>
                 <div className="kpi-body">
                   <span className="kpi-val">{datos.porcentajeFinalizadasATiempo}%</span>
-                  <span className="kpi-label">Finalizadas a tiempo</span>
+                  <span className="kpi-lbl">Finalizadas a tiempo</span>
                 </div>
-                <div className="kpi-trend kpi-trend-up"><TrendingUp size={12} /></div>
+                <TrendingUp size={13} style={{ color: '#2eaa68', flexShrink: 0 }} />
               </div>
-
-              <div className="kpi-divider" />
-
-              <div className="kpi-item">
-                <div className="kpi-icon-wrap kpi-blue"><Timer size={15} strokeWidth={2} /></div>
+              <div className="kpi-sep" />
+              <div className="kpi-row">
+                <div className="kpi-icon kpi-blue"><Timer size={14} strokeWidth={2} /></div>
                 <div className="kpi-body">
                   <span className="kpi-val">{datos.tiempoPromedioResolucionHoras}h</span>
-                  <span className="kpi-label">Tiempo prom. resolución</span>
+                  <span className="kpi-lbl">Resolución promedio</span>
                 </div>
-                <div className="kpi-trend kpi-trend-neutral"><Minus size={12} /></div>
+                <Minus size={13} style={{ color: '#9c9790', flexShrink: 0 }} />
               </div>
-
-              <div className="kpi-divider" />
-
-              <div className="kpi-item">
-                <div className="kpi-icon-wrap kpi-red"><Flame size={15} strokeWidth={2} /></div>
+              <div className="kpi-sep" />
+              <div className="kpi-row">
+                <div className="kpi-icon kpi-red"><Flame size={14} strokeWidth={2} /></div>
                 <div className="kpi-body">
                   <span className="kpi-val">{datos.tareasAltaPrioridad}</span>
-                  <span className="kpi-label">Alta prioridad activas</span>
+                  <span className="kpi-lbl">Alta prioridad activas</span>
                 </div>
-                <div className="kpi-trend kpi-trend-down"><TrendingDown size={12} /></div>
-              </div>
-
-              <div className="kpi-progress-wrap">
-                <div className="kpi-progress-header">
-                  <span>Progreso global</span>
-                  <span className="kpi-progress-pct">
-                    {Math.round((datos.tareasFinalizadas / total) * 100)}%
-                  </span>
-                </div>
-                <div className="kpi-progress-track">
-                  <div
-                    className="kpi-progress-fill"
-                    style={{ width: `${Math.round((datos.tareasFinalizadas / total) * 100)}%` }}
-                  />
-                </div>
-                <div className="kpi-progress-footer">
-                  <span>{datos.tareasFinalizadas} finalizadas</span>
-                  <span>{total} total</span>
-                </div>
+                <TrendingDown size={13} style={{ color: '#d95f50', flexShrink: 0 }} />
               </div>
             </div>
-
-            {/* Técnicos */}
-            {datos.tecnicosConMasTareas?.length > 0 && (
-              <div className="dash-tecnicos-panel">
-                <div className="dash-tecnicos-header">
-                  <h2 className="dash-section-title">Técnicos activos</h2>
-                  <Users size={13} strokeWidth={2} style={{ color: 'var(--text-soft)' }} />
-                </div>
-                <div className="dash-tecnicos-list">
-                  {datos.tecnicosConMasTareas.map((t, i) => (
-                    <div className="tecnico-row" key={t.tecnicoId}>
-                      <span className="tecnico-rank">#{i + 1}</span>
-                      <div className="tecnico-avatar">{t.tecnicoNombre?.charAt(0)}</div>
-                      <div className="tecnico-info">
-                        <span className="tecnico-nombre">{t.tecnicoNombre}</span>
-                        <div className="tecnico-bar-track">
-                          <div
-                            className="tecnico-bar-fill"
-                            style={{
-                              width: `${Math.min(
-                                (t.totalTareasActivas /
-                                  (datos.tecnicosConMasTareas[0]?.totalTareasActivas || 1)) * 100,
-                                100
-                              )}%`
-                            }}
-                          />
-                        </div>
-                      </div>
-                      <div className="tecnico-stats">
-                        <span className="tecnico-activas">{t.totalTareasActivas}</span>
-                        <span className="tecnico-fin">{t.totalTareasFinalizadas} fin.</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            <div className="kpi-progress-block">
+              <div className="kpi-progress-header">
+                <span>Progreso global</span>
+                <span className="kpi-progress-pct">{globalPct}%</span>
               </div>
-            )}
-
+              <div className="kpi-progress-track">
+                <div className="kpi-progress-fill" style={{ width: `${globalPct}%` }} />
+              </div>
+              <div className="kpi-progress-sub">
+                <span>{datos.tareasFinalizadas} finalizadas</span>
+                <span>{total} total</span>
+              </div>
+            </div>
           </div>
+
+          <div className="dash-panel">
+            <div className="dash-panel-header">
+              <span className="dash-panel-title">Actividad reciente</span>
+              <Zap size={13} style={{ color: '#9c9790' }} />
+            </div>
+            <div className="actividad-list">
+              <div className="actividad-item">
+                <div className="actividad-dot dot-green" />
+                <div className="actividad-body">
+                  <span className="actividad-texto"><strong>{datos.tareasFinalizadas}</strong> tareas completadas</span>
+                  <span className="actividad-sub">Estado: Finalizada</span>
+                </div>
+                <span className="actividad-badge badge-green">OK</span>
+              </div>
+              <div className="actividad-item">
+                <div className="actividad-dot dot-amber" />
+                <div className="actividad-body">
+                  <span className="actividad-texto"><strong>{datos.tareasPendientes}</strong> tareas sin asignar</span>
+                  <span className="actividad-sub">Estado: Pendiente</span>
+                </div>
+                <span className="actividad-badge badge-amber">·</span>
+              </div>
+              <div className="actividad-item">
+                <div className="actividad-dot dot-blue" />
+                <div className="actividad-body">
+                  <span className="actividad-texto"><strong>{datos.tareasEnProceso}</strong> en ejecución activa</span>
+                  <span className="actividad-sub">Estado: En proceso</span>
+                </div>
+                <span className="actividad-badge badge-blue">→</span>
+              </div>
+              <div className="actividad-item">
+                <div className="actividad-dot dot-red" />
+                <div className="actividad-body">
+                  <span className="actividad-texto"><strong>{datos.tareasVencidas}</strong> tareas fuera de plazo</span>
+                  <span className="actividad-sub">Estado: Vencida</span>
+                </div>
+                <span className="actividad-badge badge-red">!</span>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        {/* ─── RIGHT COLUMN — charts ─── */}
-        <div className="dash-right">
+        <div className="dash-col dash-col-center">
 
-          <div className="dash-chart-wrap">
-            <h2 className="dash-section-title">Tareas por estado</h2>
+          <div className="dash-chart-panel">
+            <div className="dash-panel-header">
+              <div className="dash-panel-header-left">
+                <div className="dash-chart-icon-wrap">
+                  <BarChart2 size={13} strokeWidth={2} />
+                </div>
+                <span className="dash-panel-title">Tareas por estado</span>
+              </div>
+              <div className="dash-chart-meta">
+                <span className="dash-chart-total">{total}</span>
+                <span className="dash-chart-meta-lbl">total</span>
+              </div>
+            </div>
+            <p className="dash-chart-desc">Distribución de tareas según su estado actual en el sistema.</p>
             <GraficaEstados datos={datos} />
           </div>
 
-          <div className="dash-chart-wrap">
-            <h2 className="dash-section-title">Distribución por prioridad</h2>
+          <div className="dash-chart-panel">
+            <div className="dash-panel-header">
+              <div className="dash-panel-header-left">
+                <div className="dash-chart-icon-wrap dash-chart-icon-purple">
+                  <PieChart size={13} strokeWidth={2} />
+                </div>
+                <span className="dash-panel-title">Distribución por prioridad</span>
+              </div>
+              <div className="dash-chart-meta">
+                <span className="dash-chart-total">{datos.tareasAltaPrioridad}</span>
+                <span className="dash-chart-meta-lbl">alta</span>
+              </div>
+            </div>
+            <p className="dash-chart-desc">Proporción de tareas por nivel de urgencia asignado.</p>
             <GraficaPrioridad datos={datos} />
           </div>
 
         </div>
 
+        <div className="dash-col dash-col-right">
+
+          {datos.tecnicosConMasTareas?.length > 0 && (
+            <div className="dash-panel">
+              <div className="dash-panel-header">
+                <span className="dash-panel-title">Técnicos activos</span>
+                <Users size={13} style={{ color: '#9c9790' }} />
+              </div>
+              <div className="tecnicos-list">
+                {datos.tecnicosConMasTareas.map((t, i) => {
+                  const maxActivas = datos.tecnicosConMasTareas[0]?.totalTareasActivas || 1;
+                  const pct = Math.min(Math.round((t.totalTareasActivas / maxActivas) * 100), 100);
+                  return (
+                    <div className="tecnico-row" key={t.tecnicoId}>
+                      <span className="tecnico-rank">#{i + 1}</span>
+                      <div className="tecnico-avatar-new">{t.tecnicoNombre?.charAt(0).toUpperCase()}</div>
+                      <div className="tecnico-info-new">
+                        <span className="tecnico-nombre-new">{t.tecnicoNombre}</span>
+                        <div className="tecnico-bar-track-new">
+                          <div className="tecnico-bar-fill-new" style={{ width: `${pct}%` }} />
+                        </div>
+                      </div>
+                      <div className="tecnico-nums">
+                        <span className="tecnico-num-main">{t.totalTareasActivas}</span>
+                        <span className="tecnico-num-sub">{t.totalTareasFinalizadas} fin.</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="dash-panel dash-alert-panel">
+            <div className="dash-alert-icon-wrap">
+              <Shield size={20} strokeWidth={1.5} />
+            </div>
+            <div className="dash-alert-content">
+              <span className="dash-alert-title">Estado operacional</span>
+              <span className="dash-alert-desc">
+                {datos.tareasVencidas > 0
+                  ? `${datos.tareasVencidas} tarea${datos.tareasVencidas !== 1 ? 's' : ''} vencida${datos.tareasVencidas !== 1 ? 's' : ''} requiere${datos.tareasVencidas === 1 ? ' atención' : 'n atención'}.`
+                  : 'Sin tareas vencidas. Todo en orden.'}
+              </span>
+              <button
+                className={`dash-alert-btn ${datos.tareasVencidas > 0 ? 'dash-alert-btn-warn' : 'dash-alert-btn-ok'}`}
+                onClick={() => navigate('/tareas')}
+              >
+                {datos.tareasVencidas > 0 ? 'Revisar ahora' : 'Ver tareas'}
+              </button>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   );
