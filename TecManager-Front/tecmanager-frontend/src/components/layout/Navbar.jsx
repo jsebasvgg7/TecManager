@@ -6,7 +6,7 @@ import {
   Users, CheckSquare, LogOut, Menu, X, Tag,
 } from 'lucide-react';
 import NotificacionBadge from './NotificacionBadge';
-import TopBar from './TopBar';
+import TopBar from './Topbar';
 import '../../styles/navbar.css';
 
 // Map route → readable page title
