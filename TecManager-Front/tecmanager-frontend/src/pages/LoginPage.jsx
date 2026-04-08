@@ -8,7 +8,11 @@ import {
   LogIn,
   AlertCircle,
   Loader2,
-  LogInIcon,
+  Wrench,
+  ClipboardList,
+  Users,
+  BarChart3,
+  CheckCircle2,
 } from 'lucide-react';
 import '../styles/login.css';
 
@@ -51,37 +55,37 @@ export default function LoginPage() {
 
   return (
     <div className="login-fondo">
-      <div className="login-card">
 
-        {/* Ícono superior */}
-        <div className="login-icon-wrap">
-          <LogInIcon size={26} strokeWidth={2} />
+      <div className="login-left">
+
+        <div className="login-brand">
+          <div className="login-brand-icon">
+            <Wrench size={15} strokeWidth={2.5} />
+          </div>
+          <span className="login-brand-name">TecManager</span>
         </div>
 
-        {/* Título y descripción */}
-        <div className="login-header">
-          <h1>Iniciar sesión</h1>
-          <p>Gestiona y da seguimiento a las tareas técnicas de tu equipo.</p>
-        </div>
+        <div className="login-center">
 
-        {/* Formulario */}
-        <form onSubmit={handleSubmit} className="login-form">
+          <div className="login-header">
+            <h1>Bienvenido</h1>
+            <p>Ingresa tus credenciales para acceder al sistema de gestión.</p>
+          </div>
 
-          {error && (
-            <div className="alerta-error">
-              <AlertCircle size={15} strokeWidth={2} />
-              {error}
-            </div>
-          )}
+          <form onSubmit={handleSubmit} className="login-form">
 
-          {/* Email */}
-          <div className="form-grupo">
+            {error && (
+              <div className="alerta-error">
+                <AlertCircle size={15} strokeWidth={2} />
+                {error}
+              </div>
+            )}
+
             <div className="input-wrap">
               <span className="input-icon">
-                <Mail size={16} strokeWidth={1.8} />
+                <Mail size={15} strokeWidth={1.8} />
               </span>
               <input
-                id="email"
                 type="email"
                 placeholder="Correo electrónico"
                 value={email}
@@ -90,16 +94,12 @@ export default function LoginPage() {
                 autoFocus
               />
             </div>
-          </div>
 
-          {/* Contraseña */}
-          <div className="form-grupo">
             <div className="input-wrap">
               <span className="input-icon">
-                <Lock size={16} strokeWidth={1.8} />
+                <Lock size={15} strokeWidth={1.8} />
               </span>
               <input
-                id="password"
                 type="password"
                 placeholder="Contraseña"
                 value={password}
@@ -107,33 +107,94 @@ export default function LoginPage() {
                 required
               />
             </div>
-          </div>
 
-          {/* Botón */}
-          <button
-            type="submit"
-            className="login-btn"
-            disabled={cargando}
-          >
-            {cargando ? (
-              <>
-                <Loader2 size={17} strokeWidth={2} className="spin" />
-                Iniciando sesión...
-              </>
-            ) : (
-              <>
-                <LogIn size={17} strokeWidth={2} />
-                Ingresar al sistema
-              </>
-            )}
-          </button>
+            <button
+              type="submit"
+              className="login-btn"
+              disabled={cargando}
+            >
+              {cargando ? (
+                <>
+                  <Loader2 size={16} strokeWidth={2} className="spin" />
+                  Iniciando sesión...
+                </>
+              ) : (
+                <>
+                  <LogIn size={16} strokeWidth={2} />
+                  Iniciar sesión
+                </>
+              )}
+            </button>
 
-        </form>
+          </form>
+        </div>
 
-        {/* Nota */}
-        <p className="login-nota">acceso seguro · solo personal autorizado</p>
+        <div className="login-footer">
+          © TecManager {new Date().getFullYear()}
+        </div>
 
       </div>
+
+      <div className="login-right">
+        <div className="login-right-overlay" />
+
+        <div className="login-right-content">
+          <div className="login-right-badge">
+            <Wrench size={18} strokeWidth={2} />
+            <span>Plataforma de gestión técnica</span>
+          </div>
+
+          <div className="login-right-headline">
+            <h2>Gestión de tareas<br />para equipos técnicos</h2>
+            <p>Centraliza, asigna y monitorea el trabajo de tu equipo desde un solo lugar.</p>
+          </div>
+
+          <div className="login-features">
+            <div className="login-feature-item">
+              <div className="login-feature-icon">
+                <ClipboardList size={18} strokeWidth={2} />
+              </div>
+              <div className="login-feature-text">
+                <span className="login-feature-title">Gestión de tareas</span>
+                <span className="login-feature-desc">Crea, asigna y da seguimiento a cada orden de trabajo</span>
+              </div>
+            </div>
+
+            <div className="login-feature-item">
+              <div className="login-feature-icon">
+                <Users size={18} strokeWidth={2} />
+              </div>
+              <div className="login-feature-text">
+                <span className="login-feature-title">Control de técnicos</span>
+                <span className="login-feature-desc">Administra tu equipo y sus roles con precisión</span>
+              </div>
+            </div>
+
+            <div className="login-feature-item">
+              <div className="login-feature-icon">
+                <BarChart3 size={18} strokeWidth={2} />
+              </div>
+              <div className="login-feature-text">
+                <span className="login-feature-title">Reportes en tiempo real</span>
+                <span className="login-feature-desc">Visualiza el estado de operaciones al instante</span>
+              </div>
+            </div>
+
+            <div className="login-feature-item">
+              <div className="login-feature-icon">
+                <CheckCircle2 size={18} strokeWidth={2} />
+              </div>
+              <div className="login-feature-text">
+                <span className="login-feature-title">Historial completo</span>
+                <span className="login-feature-desc">Trazabilidad total de cada tarea completada</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <span className="login-deco-label">acceso seguro · solo personal autorizado</span>
+      </div>
+
     </div>
   );
 }
