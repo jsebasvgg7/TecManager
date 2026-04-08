@@ -17,7 +17,9 @@ public class CorsConfig {
         config.setAllowedOrigins(List.of(
             "http://localhost:3000",
             "http://localhost:5173",
-            "https://tecmanager-app.onrender.com"
+            "https://tecmanager-app.onrender.com",
+            "https://tecmanager.onrender.com",
+            "https://tecmanager.railway.app"
         ));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
