@@ -1,8 +1,3 @@
-/* ══════════════════════════════════════════════════════
-   TAREA CARD — tipografía uniforme y espaciado respirable
-   Paleta: Charcoal #262424 · Almond #EEE5DA · Cream #f0ece7
-══════════════════════════════════════════════════════ */
-
 .tc-card {
   background: #ffffff;
   border: 1px solid rgba(238, 229, 218, 0.80);
@@ -54,7 +49,6 @@
   opacity: 1 !important;
 }
 
-/* ── FILA SUPERIOR ── */
 .tc-row-top {
   display: flex;
   align-items: center;
@@ -83,7 +77,6 @@
   gap: 3px;
 }
 
-/* Título — un solo tamaño para toda la card */
 .tc-titulo {
   font-family: 'Nunito', sans-serif;
   font-size: 14px;
@@ -106,7 +99,6 @@
   font-weight: 400;
 }
 
-/* Botón icono superior (eliminar / favorito) */
 .tc-btn-icon {
   width: 32px;
   height: 32px;
@@ -131,7 +123,6 @@
 .tc-btn-danger { color: #ef4444; border-color: #fca5a580; background: #fff8f8; }
 .tc-btn-danger:hover { background: #ef4444 !important; color: #fff !important; border-color: #ef4444 !important; }
 
-/* ── CHIPS — todos al mismo tamaño ── */
 .tc-chips-row {
   display: flex;
   flex-wrap: wrap;
@@ -168,7 +159,6 @@
 .tc-chip-baja       { background: #dcfce7; color: #166534; }
 .tc-chip-cat        { background: rgba(238,229,218,0.45); border: 1px solid rgba(238,229,218,0.80); }
 
-/* ── DESCRIPCIÓN ── */
 .tc-desc {
   font-size: 13px;
   color: #6b6868;
@@ -181,7 +171,6 @@
   font-weight: 400;
 }
 
-/* ── AVANCE ── */
 .tc-avance-wrap { display: flex; flex-direction: column; gap: 5px; }
 
 .tc-avance-header {
@@ -209,7 +198,6 @@
   transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ── ETIQUETAS ── */
 .tc-tags-row { display: flex; flex-wrap: wrap; gap: 5px; }
 
 .tc-tag {
@@ -223,10 +211,8 @@
   border: 1px solid #EEE5DA;
 }
 
-/* ── DIVISOR ── */
 .tc-divider { height: 1px; background: #f0ece7; }
 
-/* ── FOOTER — todo a la misma escala ── */
 .tc-footer {
   display: flex;
   align-items: center;
@@ -240,7 +226,6 @@
   gap: 10px;
 }
 
-/* tiempo estimado — mismo tamaño que el resto, NO gigante */
 .tc-tiempo {
   display: flex;
   align-items: center;
@@ -278,7 +263,6 @@
   white-space: nowrap;
 }
 
-/* ── BOTONES DE ACCIÓN ── */
 .tc-acciones { display: flex; gap: 5px; align-items: center; }
 
 .tc-btn-accion {
@@ -312,7 +296,6 @@
   border-color: #3a3737 !important;
 }
 
-/* ── CAMBIAR ESTADO (técnico) ── */
 .tc-btn-cambio-estado {
   width: 100%;
   padding: 9px;

@@ -97,7 +97,6 @@ export default function TareasPage() {
   return (
     <div className="contenedor">
 
-      {/* Header */}
       <div className="page-header">
         <div>
           <p className="dash-eyebrow">Gestión</p>
@@ -120,7 +119,6 @@ export default function TareasPage() {
       {error && <div className="alerta alerta-error">{error}</div>}
       {exito && <div className="alerta alerta-exito">{exito}</div>}
 
-      {/* Filtros */}
       <div className="filtros-bar">
         <div className="filtro-search-wrap">
           <Search size={14} strokeWidth={2} className="filtro-search-icon" />
@@ -151,7 +149,6 @@ export default function TareasPage() {
         )}
       </div>
 
-      {/* Grid */}
       {cargando ? (
         <div className="cargando"><RefreshCw size={18} className="spin" /> Cargando tareas...</div>
       ) : tareasFiltradas.length === 0 ? (

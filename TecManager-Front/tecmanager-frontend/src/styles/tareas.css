@@ -1,11 +1,9 @@
-/* ── Grid tareas ── */
 .tareas-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 14px;
 }
 
-/* ── Tarjeta ── */
 .tarea-card {
   background: #ffffff;
   border-radius: 14px;
@@ -28,7 +26,6 @@
   background: #fff8f8;
 }
 
-/* SLA vencido — borde naranja suave */
 .tarea-sla-vencida {
   border-color: #fed7aa;
   background: #fffbf7;
@@ -75,7 +72,6 @@
   font-weight: 600;
 }
 
-/* ── Resumen mis tareas ── */
 .mis-tareas-resumen {
   display: flex;
   gap: 10px;
@@ -118,13 +114,11 @@
   color: #262424;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .tareas-grid { grid-template-columns: 1fr; }
   .mis-tareas-resumen { justify-content: space-between; }
 }
 
-/* ── Botones icono en card ── */
 .tarea-icon-btn {
   width: 28px; height: 28px;
   background: #f7f4f0;
@@ -143,7 +137,6 @@
   border-color: #262424;
 }
 
-/* ── Botón cambiar estado ── */
 .tarea-estado-btn {
   width: 100%;
   padding: 9px;
@@ -169,7 +162,6 @@
   color: #EEE5DA;
 }
 
-/* ── Buscador con ícono ── */
 .filtro-search-wrap {
   position: relative;
   flex: 1;
@@ -190,7 +182,6 @@
   width: 100%;
 }
 
-/* ── Eyebrow ── */
 .dash-eyebrow {
   font-family: 'Nunito', sans-serif;
   font-size: 11px;
@@ -201,7 +192,6 @@
   margin-bottom: 4px;
 }
 
-/* ── Spin ── */
 .spin {
   animation: spinAnim 0.8s linear infinite;
   display: inline-flex;

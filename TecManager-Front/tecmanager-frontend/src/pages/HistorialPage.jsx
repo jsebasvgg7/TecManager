@@ -38,7 +38,6 @@ export default function HistorialPage() {
       setHistorial([]);
     }
 
-    // Reportes — opcional, puede estar vacío
     try {
       const reportesRes = await api.get(`/reportes/tarea/${tareaId}`);
       setReportes(reportesRes.data || []);
@@ -64,7 +63,6 @@ export default function HistorialPage() {
   return (
     <div className="contenedor">
 
-      {/* Header */}
       <div className="page-header">
         <div>
           <button className="dash-refresh-btn" style={{ marginBottom:10 }} onClick={() => navigate('/tareas')}>
@@ -78,7 +76,6 @@ export default function HistorialPage() {
 
       {error && <div className="alerta alerta-error">{error}</div>}
 
-      {/* Info tarea */}
       {tarea && (
         <div className="card hist-info-card">
           <div className="tarea-info-grid">
@@ -99,7 +96,6 @@ export default function HistorialPage() {
         </div>
       )}
 
-      {/* Tabs */}
       <div className="hist-tabs">
         {[
           { key:'historial', label:'Historial de cambios', count: historial.length },
@@ -115,7 +111,6 @@ export default function HistorialPage() {
         ))}
       </div>
 
-      {/* Timeline historial */}
       {vistaActiva === 'historial' && (
         <div className="timeline">
           {!historial.length
@@ -148,7 +143,6 @@ export default function HistorialPage() {
         </div>
       )}
 
-      {/* Reportes */}
       {vistaActiva === 'reportes' && (
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
           {!reportes.length

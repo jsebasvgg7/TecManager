@@ -44,7 +44,6 @@ export default function MisTareasPage() {
   return (
     <div className="contenedor">
 
-      {/* Header */}
       <div className="page-header">
         <div>
           <p className="dash-eyebrow">Mi panel</p>
@@ -56,7 +55,6 @@ export default function MisTareasPage() {
       {error && <div className="alerta alerta-error">{error}</div>}
       {exito && <div className="alerta alerta-exito">{exito}</div>}
 
-      {/* Filtros rápidos */}
       <div className="mis-tareas-resumen">
         {FILTROS.map(({ valor, label, color }) => (
           <div key={valor}
@@ -71,7 +69,6 @@ export default function MisTareasPage() {
         ))}
       </div>
 
-      {/* Grid */}
       {cargando ? (
         <div className="cargando"><RefreshCw size={18} className="spin" /> Cargando tareas...</div>
       ) : tareasFiltradas.length === 0 ? (

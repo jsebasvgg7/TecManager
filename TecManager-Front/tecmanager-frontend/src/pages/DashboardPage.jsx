@@ -64,8 +64,6 @@ export default function DashboardPage() {
 
   return (
     <div className="dash-root">
-
-      {/* ── HEADER ── */}
       <div className="dash-header">
         <div className="dash-header-left">
           <span className="dash-eyebrow">Panel operativo</span>
@@ -83,7 +81,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── ESTADÍSTICAS ── */}
       <div className="dash-container">
         <div className="dash-container-header">
           <ClipboardList size={12} strokeWidth={2.5} />
@@ -118,10 +115,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── FILA INFERIOR: PANELES (45%) + GRÁFICAS (55%) ── */}
       <div className="dash-bottom-row">
 
-        {/* PANELES */}
         <div className="dash-container dash-bottom-paneles">
           <div className="dash-container-header">
             <Activity size={12} strokeWidth={2.5} />
@@ -273,7 +268,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* GRÁFICAS */}
         <div className="dash-container dash-bottom-graficas">
           <div className="dash-container-header">
             <BarChart2 size={12} strokeWidth={2.5} />
@@ -314,12 +308,9 @@ export default function DashboardPage() {
               <p className="dash-chart-desc">Proporción de tareas por nivel de urgencia asignado.</p>
               <GraficaPrioridad datos={datos} />
             </div>
-
           </div>
         </div>
-
-      </div>{/* fin dash-bottom-row */}
-
+      </div>
     </div>
   );
 }

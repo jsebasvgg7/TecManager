@@ -8,7 +8,6 @@ import {
   Cpu, Globe, Lock, Settings, AlertTriangle,
 } from 'lucide-react';
 
-// Mapa de íconos con nombres en español
 const ICONOS = [
   { nombre: 'Etiqueta',        componente: Tag           },
   { nombre: 'Herramienta',     componente: Wrench        },
@@ -88,7 +87,6 @@ function CategoriaModal({ categoria, onGuardar, onCerrar }) {
         <form onSubmit={handleSubmit}>
           {error && <div className="alerta alerta-error">{error}</div>}
 
-          {/* Nombre */}
           <div className="form-grupo">
             <label>Nombre *</label>
             <input
@@ -98,7 +96,6 @@ function CategoriaModal({ categoria, onGuardar, onCerrar }) {
             />
           </div>
 
-          {/* Descripción */}
           <div className="form-grupo">
             <label>Descripción</label>
             <textarea
@@ -109,10 +106,8 @@ function CategoriaModal({ categoria, onGuardar, onCerrar }) {
             />
           </div>
 
-          {/* Color + Ícono */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
 
-            {/* Color */}
             <div className="form-grupo">
               <label>Color</label>
               <div style={{
@@ -138,7 +133,6 @@ function CategoriaModal({ categoria, onGuardar, onCerrar }) {
               </div>
             </div>
 
-            {/* Ícono */}
             <div className="form-grupo">
               <label>Ícono</label>
               <div style={{
@@ -174,7 +168,6 @@ function CategoriaModal({ categoria, onGuardar, onCerrar }) {
 
           </div>
 
-          {/* SLA por prioridad */}
           <div className="form-grupo">
             <label style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <Clock size={11} strokeWidth={2.5} />
@@ -328,7 +321,6 @@ export default function CategoriasPage() {
               display: 'flex', flexDirection: 'column', gap: 12,
             }}>
 
-              {/* Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{
@@ -378,14 +370,12 @@ export default function CategoriasPage() {
                 </div>
               </div>
 
-              {/* Descripción */}
               {cat.descripcion && (
                 <p style={{ fontSize: 13, color: '#3a3737', lineHeight: 1.55 }}>
                   {cat.descripcion}
                 </p>
               )}
 
-              {/* SLA chips */}
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {[
                   { label: 'Alta',  horas: cat.slaAltaHoras,  color: '#ef4444', bg: '#fee2e2' },
@@ -404,7 +394,6 @@ export default function CategoriasPage() {
                   </span>
                 ))}
               </div>
-
             </div>
           ))}
         </div>

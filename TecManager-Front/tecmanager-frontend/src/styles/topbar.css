@@ -1,6 +1,3 @@
-/* ══════════════════════════
-   TOP BAR
-══════════════════════════ */
 .topbar {
   height: var(--header-h, 58px);
   flex-shrink: 0;
@@ -27,7 +24,6 @@
   letter-spacing: 0.01em;
 }
 
-/* ── Right side ── */
 .topbar-right {
   display: flex;
   align-items: center;
