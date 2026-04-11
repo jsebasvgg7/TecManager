@@ -11,6 +11,7 @@ import TareasPage     from './pages/TareasPage';
 import MisTareasPage  from './pages/MisTareasPage';
 import HistorialPage  from './pages/HistorialPage';
 import CategoriasPage from './pages/CategoriasPage';
+import EspecialidadesPage from './pages/EspecialidadesPage';
 
 import './styles/global.css';
 
@@ -57,10 +58,15 @@ function AppRoutes() {
           </PrivateRoute>
         } />
 
-        {/* ── NUEVA RUTA ── */}
         <Route path="categorias" element={
           <PrivateRoute roles={['ADMIN']}>
             <CategoriasPage />
+          </PrivateRoute>
+        } />
+
+        <Route path="especialidades" element={
+          <PrivateRoute roles={['ADMIN']}>
+            <EspecialidadesPage />
           </PrivateRoute>
         } />
 

@@ -94,7 +94,8 @@ export default function UsuariosPage() {
         <UsuarioTable usuarios={usuariosFiltrados}
           onEditar={(u) => { setUsuarioEditar(u); setMostrarForm(true); }}
           onCambiarEstado={handleCambiarEstado}
-          onEliminar={handleEliminar} />
+          onEliminar={handleEliminar}
+          onActualizar={cargarUsuarios} />
       )}
 
       {mostrarForm && (

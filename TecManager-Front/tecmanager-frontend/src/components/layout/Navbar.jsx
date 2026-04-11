@@ -86,6 +86,14 @@ export default function Navbar() {
                 data-label="Categorías"
                 onClick={() => setMenuAbierto(false)}
               >
+
+              <NavLink to="/usuarios" className="sidebar-link">
+                👥 Usuarios
+              </NavLink>
+              <NavLink to="/especialidades" className="sidebar-link">
+                🔧 Especialidades
+              </NavLink>
+                
                 <span className="sidebar-link-icon">
                   <Tag size={17} strokeWidth={1.9} />
                 </span>
