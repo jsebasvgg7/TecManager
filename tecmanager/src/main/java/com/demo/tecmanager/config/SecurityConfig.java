@@ -80,6 +80,9 @@ public class SecurityConfig {
                 // ── Notificaciones ──
                 .requestMatchers("/api/notificaciones/**").authenticated()
 
+                // ── Especialidades ──
+                .requestMatchers("/api/especialidades/**").hasAnyRole("ADMIN", "ASIGNADOR", "TECNICO")
+
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter,

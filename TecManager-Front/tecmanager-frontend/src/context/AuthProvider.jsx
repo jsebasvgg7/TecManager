@@ -17,8 +17,7 @@ export function AuthProvider({ children }) {
 
       if (expirado) {
         localStorage.clear();
-        setCargando(false);
-        return;
+        return; 
       }
 
       setUsuario(JSON.parse(usuarioGuardado));
