@@ -107,7 +107,7 @@ export default function GraficaPrioridad({ datos }) {
                 color: '#9c9790',
                 fontFamily: 'Nunito Sans, sans-serif',
               }}>
-                {d.valor} tareas
+                {d.valor} tickets
               </div>
             </div>
           </div>

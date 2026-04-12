@@ -1,7 +1,7 @@
-.tareas-grid {
+.tickets-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 14px;
+  gap: 24px;
 }
 
 .tarea-card {
@@ -115,7 +115,7 @@
 }
 
 @media (max-width: 768px) {
-  .tareas-grid { grid-template-columns: 1fr; }
+  .tickets-grid { grid-template-columns: 1fr; }
   .mis-tareas-resumen { justify-content: space-between; }
 }
 

@@ -22,13 +22,13 @@ public class CategoriaController {
         this.service = service;
     }
 
-    // ── GET /api/categorias  (ADMIN + ASIGNADOR ven todas; TECNICO solo activas) ──
+    // ── GET /api/categorias  (ADMIN + SUPERVISOR ven todas; TECNICO solo activas) ──
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR','TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR','TECNICO')")
     public ResponseEntity<List<CategoriaResponse>> listar(Authentication auth) {
         boolean esAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
-                            || a.getAuthority().equals("ROLE_ASIGNADOR"));
+                            || a.getAuthority().equals("ROLE_SUPERVISOR"));
         List<CategoriaResponse> lista = esAdmin
                 ? service.listarTodas()
                 : service.listarActivas();
@@ -37,14 +37,14 @@ public class CategoriaController {
 
     // ── GET /api/categorias/activas ──
     @GetMapping("/activas")
-    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR','TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR','TECNICO')")
     public ResponseEntity<List<CategoriaResponse>> listarActivas() {
         return ResponseEntity.ok(service.listarActivas());
     }
 
     // ── GET /api/categorias/{id} ──
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR','TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR','TECNICO')")
     public ResponseEntity<CategoriaResponse> obtener(@PathVariable String id) {
         return ResponseEntity.ok(service.obtenerPorId(id));
     }

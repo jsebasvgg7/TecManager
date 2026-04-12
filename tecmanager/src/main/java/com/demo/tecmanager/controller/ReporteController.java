@@ -27,19 +27,19 @@ public class ReporteController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<Reporte> obtenerPorId(@PathVariable String id) {
         return ResponseEntity.ok(reporteService.obtenerPorId(id));
     }
 
     @GetMapping("/tarea/{tareaId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<List<Reporte>> obtenerPorTarea(@PathVariable String tareaId) {
         return ResponseEntity.ok(reporteService.obtenerPorTarea(tareaId));
     }
 
     @GetMapping("/tecnico/{tecnicoId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<List<Reporte>> obtenerPorTecnico(@PathVariable String tecnicoId) {
         return ResponseEntity.ok(reporteService.obtenerPorTecnico(tecnicoId));
     }

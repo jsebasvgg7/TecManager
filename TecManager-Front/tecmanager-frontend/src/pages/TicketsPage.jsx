@@ -1,20 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
-import TareaCard from '../components/tareas/TareaCard';
-import TareaForm from '../components/tareas/TareaForm';
-import CambioEstadoModal from '../components/tareas/CambioEstadoModal';
+import TicketCard from '../components/tickets/TicketCard';
+import TicketForm from '../components/tickets/TicketForm';
+import CambioEstadoModal from '../components/tickets/CambioEstadoModal';
 import { Plus, Search, RefreshCw, AlertTriangle } from 'lucide-react';
-import '../styles/tareas.css';
+import '../styles/tickets.css';
 
-export default function TareasPage() {
-  const [tareas,          setTareas]          = useState([]);
+export default function TicketsPage() {
+  const [tickets,         setTickets]         = useState([]);
   const [cargando,        setCargando]        = useState(true);
   const [error,           setError]           = useState('');
   const [exito,           setExito]           = useState('');
   const [mostrarForm,     setMostrarForm]     = useState(false);
-  const [tareaEditar,     setTareaEditar]     = useState(null);
-  const [tareaEstado,     setTareaEstado]     = useState(null);
+  const [ticketEditar,    setTicketEditar]    = useState(null);
+  const [ticketEstado,    setTicketEstado]    = useState(null);
   const [filtroEstado,    setFiltroEstado]    = useState('TODOS');
   const [filtroPrioridad, setFiltroPrioridad] = useState('TODOS');
   const [filtroCategoria, setFiltroCategoria] = useState('TODOS');
@@ -23,19 +23,19 @@ export default function TareasPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    cargarTareas();
+    cargarTickets();
     api.get('/categorias/activas')
       .then(r => setCategorias(r.data))
       .catch(() => {});
   }, []);
 
-  const cargarTareas = async () => {
+  const cargarTickets = async () => {
     try {
       setCargando(true);
-      const r = await api.get('/tareas');
-      setTareas(r.data);
+      const r = await api.get('/tareas'); // Backend original path
+      setTickets(r.data);
     } catch {
-      setError('Error al cargar tareas');
+      setError('Error al cargar tickets');
     } finally {
       setCargando(false);
     }
@@ -43,16 +43,16 @@ export default function TareasPage() {
 
   const handleGuardar = async (datos) => {
     try {
-      if (tareaEditar) {
-        await api.put(`/tareas/${tareaEditar.id}`, datos);
-        mostrarExito('Tarea actualizada');
+      if (ticketEditar) {
+        await api.put(`/tareas/${ticketEditar.id}`, datos);
+        mostrarExito('Ticket actualizado');
       } else {
         await api.post('/tareas', datos);
-        mostrarExito('Tarea creada');
+        mostrarExito('Ticket creado');
       }
       setMostrarForm(false);
-      setTareaEditar(null);
-      cargarTareas();
+      setTicketEditar(null);
+      cargarTickets();
     } catch (err) {
       throw new Error(err.response?.data?.mensaje || 'Error al guardar');
     }
@@ -60,23 +60,23 @@ export default function TareasPage() {
 
   const handleCambiarEstado = async (datos) => {
     try {
-      await api.patch(`/tareas/${tareaEstado.id}/estado`, datos);
+      await api.patch(`/tareas/${ticketEstado.id}/estado`, datos);
       mostrarExito('Estado actualizado');
-      setTareaEstado(null);
-      cargarTareas();
+      setTicketEstado(null);
+      cargarTickets();
     } catch (err) {
       throw new Error(err.response?.data?.mensaje || 'Error al cambiar estado');
     }
   };
 
   const handleEliminar = async (id) => {
-    if (!window.confirm('¿Eliminar esta tarea? Esta acción no se puede deshacer.')) return;
+    if (!window.confirm('¿Eliminar este ticket? Esta acción no se puede deshacer.')) return;
     try {
       await api.delete(`/tareas/${id}`);
-      mostrarExito('Tarea eliminada');
-      cargarTareas();
+      mostrarExito('Ticket eliminado');
+      cargarTickets();
     } catch {
-      setError('Error al eliminar la tarea');
+      setError('Error al eliminar el ticket');
     }
   };
 
@@ -85,14 +85,14 @@ export default function TareasPage() {
     setTimeout(() => setExito(''), 3000);
   };
 
-  const tareasFiltradas = tareas.filter(t =>
+  const ticketsFiltrados = tickets.filter(t =>
     (filtroEstado    === 'TODOS' || t.estado    === filtroEstado)    &&
     (filtroPrioridad === 'TODOS' || t.prioridad === filtroPrioridad) &&
     (filtroCategoria === 'TODOS' || t.categoriaId === filtroCategoria) &&
     t.titulo.toLowerCase().includes(busqueda.toLowerCase())
   );
 
-  const vencidas = tareas.filter(t => t.vencida).length;
+  const vencidas = tickets.filter(t => t.vencida).length;
 
   return (
     <div className="contenedor">
@@ -100,19 +100,19 @@ export default function TareasPage() {
       <div className="page-header">
         <div>
           <p className="dash-eyebrow">Gestión</p>
-          <h1>Tareas</h1>
+          <h1>Tickets</h1>
           <p className="texto-suave">
-            {tareas.length} tareas
+            {tickets.length} tickets
             {vencidas > 0 && (
               <span style={{ color: '#ef4444', marginLeft: 8, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                <AlertTriangle size={12} strokeWidth={2.5} /> {vencidas} vencidas
+                <AlertTriangle size={12} strokeWidth={2.5} /> {vencidas} vencidos
               </span>
             )}
           </p>
         </div>
         <button className="btn btn-primario"
-          onClick={() => { setTareaEditar(null); setMostrarForm(true); }}>
-          <Plus size={15} strokeWidth={2.5} /> Nueva Tarea
+          onClick={() => { setTicketEditar(null); setMostrarForm(true); }}>
+          <Plus size={15} strokeWidth={2.5} /> Nuevo Ticket
         </button>
       </div>
 
@@ -122,7 +122,7 @@ export default function TareasPage() {
       <div className="filtros-bar">
         <div className="filtro-search-wrap">
           <Search size={14} strokeWidth={2} className="filtro-search-icon" />
-          <input type="text" placeholder="Buscar tarea..."
+          <input type="text" placeholder="Buscar ticket..."
             value={busqueda} onChange={e => setBusqueda(e.target.value)}
             className="filtro-input filtro-input-search" />
         </div>
@@ -150,17 +150,18 @@ export default function TareasPage() {
       </div>
 
       {cargando ? (
-        <div className="cargando"><RefreshCw size={18} className="spin" /> Cargando tareas...</div>
-      ) : tareasFiltradas.length === 0 ? (
-        <div className="vacio">No hay tareas con esos filtros</div>
+        <div className="cargando"><RefreshCw size={18} className="spin" /> Cargando tickets...</div>
+      ) : ticketsFiltrados.length === 0 ? (
+        <div className="vacio">No hay tickets con esos filtros</div>
       ) : (
-        <div className="tareas-grid">
-          {tareasFiltradas.map(tarea => (
-            <TareaCard
-              key={tarea.id}
-              tarea={tarea}
-              onEditar={(t) => { setTareaEditar(t); setMostrarForm(true); }}
-              onCambiarEstado={(t) => setTareaEstado(t)}
+        <div className="tickets-grid">
+          {ticketsFiltrados.map(ticket => (
+            <TicketCard
+              key={ticket.id}
+              tarea={ticket} // Mantenemos la prop original 'tarea' hacia adentro si no queremos refactorizar toda la cascada del card en este mismo instante, aunque lo haré abajo renombrando componentes. Pero pasémoslo como `ticket` ahora.
+              ticket={ticket}
+              onEditar={(t) => { setTicketEditar(t); setMostrarForm(true); }}
+              onCambiarEstado={(t) => setTicketEstado(t)}
               onVerHistorial={(id) => navigate(`/historial/${id}`)}
               onEliminar={handleEliminar}
             />
@@ -169,12 +170,12 @@ export default function TareasPage() {
       )}
 
       {mostrarForm && (
-        <TareaForm tarea={tareaEditar} onGuardar={handleGuardar}
-          onCerrar={() => { setMostrarForm(false); setTareaEditar(null); }} />
+        <TicketForm ticket={ticketEditar} onGuardar={handleGuardar}
+          onCerrar={() => { setMostrarForm(false); setTicketEditar(null); }} />
       )}
-      {tareaEstado && (
-        <CambioEstadoModal tarea={tareaEstado} onGuardar={handleCambiarEstado}
-          onCerrar={() => setTareaEstado(null)} />
+      {ticketEstado && (
+        <CambioEstadoModal ticket={ticketEstado} onGuardar={handleCambiarEstado}
+          onCerrar={() => setTicketEstado(null)} />
       )}
     </div>
   );

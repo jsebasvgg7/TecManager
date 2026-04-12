@@ -21,19 +21,19 @@ public class EspecialidadController {
     private EspecialidadService service;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<List<EspecialidadResponse>> listar() {
         return ResponseEntity.ok(service.listarTodas());
     }
 
     @GetMapping("/activas")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'TECNICO')")
     public ResponseEntity<List<EspecialidadResponse>> listarActivas() {
         return ResponseEntity.ok(service.listarActivas());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<EspecialidadResponse> obtener(@PathVariable String id) {
         return ResponseEntity.ok(service.obtenerPorId(id));
     }
@@ -78,7 +78,7 @@ public class EspecialidadController {
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<List<EspecialidadResponse>> obtenerDeUsuario(
             @PathVariable String usuarioId) {
         return ResponseEntity.ok(service.obtenerDeUsuario(usuarioId));

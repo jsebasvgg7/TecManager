@@ -16,7 +16,7 @@ import {
 import '../styles/dashboard.css';
 
 const STATS = [
-  { key: 'totalTareas',       label: 'Total de tareas', icon: ClipboardList, accent: '#5a7de8', bg: '#eef1fc', trend: null },
+  { key: 'totalTareas',       label: 'Total de tickets', icon: ClipboardList, accent: '#5a7de8', bg: '#eef1fc', trend: null },
   { key: 'tareasPendientes',  label: 'Pendientes',      icon: Clock,         accent: '#d4a428', bg: '#fdf5e0', trend: 'neutral' },
   { key: 'tareasFinalizadas', label: 'Finalizadas',     icon: CheckCircle2,  accent: '#2eaa68', bg: '#e4f5ed', trend: 'up' },
   { key: 'tareasVencidas',    label: 'Vencidas',        icon: AlertTriangle, accent: '#d95f50', bg: '#faeceb', trend: 'down' },
@@ -30,7 +30,7 @@ const TREND_ICON = {
 
 const TABS = [
   { id: 'general',   label: 'Vista General',      icon: LayoutDashboard },
-  { id: 'tareas',    label: 'Gestión de Tareas',  icon: ListChecks      },
+  { id: 'tickets',   label: 'Gestión de Tickets', icon: ListChecks      },
   { id: 'tecnicos',  label: 'Técnicos',           icon: UserCheck       },
   { id: 'actividad', label: 'Actividad',          icon: Bell            },
 ];
@@ -71,14 +71,14 @@ function VistaGeneral({ datos, navigate }) {
                 </span>
                 <span className="dash-alert-desc">
                   {datos.tareasVencidas > 0
-                    ? `${datos.tareasVencidas} tarea${datos.tareasVencidas !== 1 ? 's' : ''} vencida${datos.tareasVencidas !== 1 ? 's' : ''} pendiente${datos.tareasVencidas !== 1 ? 's' : ''} de revisión.`
-                    : 'Sin tareas vencidas. Todo en orden.'}
+                    ? `${datos.tareasVencidas} ticket${datos.tareasVencidas !== 1 ? 's' : ''} vencido${datos.tareasVencidas !== 1 ? 's' : ''} pendiente${datos.tareasVencidas !== 1 ? 's' : ''} de revisión.`
+                    : 'Sin tickets vencidos. Todo en orden.'}
                 </span>
                 <button
                   className={`dash-alert-btn ${datos.tareasVencidas > 0 ? 'dash-alert-btn-warn' : 'dash-alert-btn-ok'}`}
-                  onClick={() => navigate('/tareas')}
+                  onClick={() => navigate('/tickets')}
                 >
-                  {datos.tareasVencidas > 0 ? 'Revisar ahora' : 'Ver tareas'}
+                  {datos.tareasVencidas > 0 ? 'Revisar ahora' : 'Ver tickets'}
                 </button>
               </div>
             </div>
@@ -140,14 +140,14 @@ function VistaGeneral({ datos, navigate }) {
                 <div className="actividad-item">
                   <div className="actividad-dot dot-green" />
                   <div className="actividad-body">
-                    <span className="actividad-texto"><strong>{datos.tareasFinalizadas}</strong> tareas completadas</span>
-                    <span className="actividad-sub">Estado: Finalizada</span>
+                    <span className="actividad-texto"><strong>{datos.tareasFinalizadas}</strong> tickets completados</span>
+                    <span className="actividad-sub">Estado: Finalizado</span>
                   </div>
                 </div>
                 <div className="actividad-item">
                   <div className="actividad-dot dot-amber" />
                   <div className="actividad-body">
-                    <span className="actividad-texto"><strong>{datos.tareasPendientes}</strong> tareas sin asignar</span>
+                    <span className="actividad-texto"><strong>{datos.tareasPendientes}</strong> tickets sin asignar</span>
                     <span className="actividad-sub">Estado: Pendiente</span>
                   </div>
                 </div>
@@ -161,8 +161,8 @@ function VistaGeneral({ datos, navigate }) {
                 <div className="actividad-item">
                   <div className="actividad-dot dot-red" />
                   <div className="actividad-body">
-                    <span className="actividad-texto"><strong>{datos.tareasVencidas}</strong> tareas fuera de plazo</span>
-                    <span className="actividad-sub">Estado: Vencida</span>
+                    <span className="actividad-texto"><strong>{datos.tareasVencidas}</strong> tickets fuera de plazo</span>
+                    <span className="actividad-sub">Estado: Vencido</span>
                   </div>
                 </div>
               </div>
@@ -212,14 +212,14 @@ function VistaGeneral({ datos, navigate }) {
                   <div className="dash-chart-icon-wrap">
                     <BarChart2 size={13} strokeWidth={2} />
                   </div>
-                  <span className="dash-panel-title">Tareas por estado</span>
+                  <span className="dash-panel-title">Tickets por estado</span>
                 </div>
                 <div className="dash-chart-meta">
                   <span className="dash-chart-total">{total}</span>
                   <span className="dash-chart-meta-lbl">total</span>
                 </div>
               </div>
-              <p className="dash-chart-desc">Distribución de tareas según su estado actual en el sistema.</p>
+              <p className="dash-chart-desc">Distribución de tickets según su estado actual en el sistema.</p>
               <GraficaEstados datos={datos} />
             </div>
 
@@ -236,7 +236,7 @@ function VistaGeneral({ datos, navigate }) {
                   <span className="dash-chart-meta-lbl">alta</span>
                 </div>
               </div>
-              <p className="dash-chart-desc">Proporción de tareas por nivel de urgencia asignado.</p>
+              <p className="dash-chart-desc">Proporción de tickets por nivel de urgencia asignado.</p>
               <GraficaPrioridad datos={datos} />
             </div>
           </div>
@@ -246,7 +246,7 @@ function VistaGeneral({ datos, navigate }) {
   );
 }
 
-function GestionTareas({ navigate }) {
+function GestionTickets({ navigate }) {
   const [tareas, setTareas]           = useState([]);
   const [cargando, setCargando]       = useState(true);
   const [busqueda, setBusqueda]       = useState('');
@@ -283,13 +283,13 @@ function GestionTareas({ navigate }) {
     <div className="dash-container" style={{ gap: 16 }}>
       <div className="dash-container-header">
         <ListChecks size={12} strokeWidth={2.5} />
-        <span>Gestión de Tareas</span>
+        <span>Gestión de Tickets</span>
         <button
           className="btn btn-primario"
           style={{ marginLeft: 'auto', padding: '6px 14px', fontSize: 12 }}
-          onClick={() => navigate('/tareas')}
+          onClick={() => navigate('/tickets')}
         >
-          <Plus size={13} strokeWidth={2.5} /> Nueva tarea
+          <Plus size={13} strokeWidth={2.5} /> Nuevo ticket
         </button>
       </div>
 
@@ -298,7 +298,7 @@ function GestionTareas({ navigate }) {
           <Search size={14} strokeWidth={2} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9c9790', pointerEvents: 'none' }} />
           <input
             type="text"
-            placeholder="Buscar tarea..."
+            placeholder="Buscar ticket..."
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
             style={{ width: '100%', padding: '8px 14px 8px 36px', border: '1px solid #d9cfc4', borderRadius: 10, fontSize: 13, background: '#f7f4f0', color: '#262424', outline: 'none', fontFamily: 'Nunito Sans, sans-serif' }}
@@ -329,18 +329,18 @@ function GestionTareas({ navigate }) {
 
       {cargando ? (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 140, gap: 10, color: '#9c9790', fontSize: 13 }}>
-          <RefreshCw size={15} style={{ animation: 'spinAnim 0.8s linear infinite' }} /> Cargando tareas...
+          <RefreshCw size={15} style={{ animation: 'spinAnim 0.8s linear infinite' }} /> Cargando tickets...
         </div>
       ) : filtradas.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px 0', color: '#9c9790', fontSize: 13 }}>
-          No hay tareas con los filtros seleccionados
+          No hay tickets con los filtros seleccionados
         </div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#f7f4f0', borderBottom: '1px solid #EEE5DA' }}>
-                {['Tarea', 'Estado', 'Prioridad', 'Técnico', 'Fecha límite', ''].map(h => (
+                {['Ticket', 'Estado', 'Prioridad', 'Técnico', 'Fecha límite', ''].map(h => (
                   <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontFamily: 'Nunito, sans-serif', fontWeight: 800, fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9c9790', whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
@@ -389,8 +389,8 @@ function GestionTareas({ navigate }) {
           </table>
           {filtradas.length > 20 && (
             <div style={{ padding: '12px 14px', textAlign: 'center', borderTop: '1px solid #f0ece7' }}>
-              <button onClick={() => navigate('/tareas')} style={{ background: 'none', border: 'none', color: '#5a7de8', fontFamily: 'Nunito, sans-serif', fontWeight: 700, fontSize: 12.5, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                Ver todas las tareas ({filtradas.length}) <ArrowRight size={12} strokeWidth={2.5} />
+              <button onClick={() => navigate('/tickets')} style={{ background: 'none', border: 'none', color: '#5a7de8', fontFamily: 'Nunito, sans-serif', fontWeight: 700, fontSize: 12.5, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                Ver todos los tickets ({filtradas.length}) <ArrowRight size={12} strokeWidth={2.5} />
               </button>
             </div>
           )}
@@ -422,7 +422,7 @@ function SeccionTecnicos({ datos }) {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
           <StatBox label="Técnicos activos"    value={tecnicos.length}                               color="#5a7de8" bg="#eef1fc" />
-          <StatBox label="Tareas completadas"  value={datos?.tareasFinalizadas ?? 0}                  color="#2eaa68" bg="#e4f5ed" />
+          <StatBox label="Tickets completados" value={datos?.tareasFinalizadas ?? 0}                  color="#2eaa68" bg="#e4f5ed" />
           <StatBox label="Tiempo promedio (h)" value={`${datos?.tiempoPromedioResolucionHoras ?? 0}h`} color="#d4a428" bg="#fdf5e0" />
         </div>
       </div>
@@ -480,7 +480,7 @@ function SeccionTecnicos({ datos }) {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontFamily: 'Nunito, sans-serif', fontWeight: 700, fontSize: 13, color: '#262424' }}>{t.tecnicoNombre}</div>
-                    <div style={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: 11, color: '#6b6868' }}>{t.totalTareasFinalizadas} tareas · {t.tiempoPromedioHoras}h prom.</div>
+                    <div style={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: 11, color: '#6b6868' }}>{t.totalTareasFinalizadas} tickets · {t.tiempoPromedioHoras}h prom.</div>
                   </div>
                   {i === 0 && <Star size={14} style={{ color: '#d4a428', flexShrink: 0 }} />}
                 </div>
@@ -495,11 +495,11 @@ function SeccionTecnicos({ datos }) {
 
 function SeccionActividad({ datos }) {
   const eventos = [
-    { tipo: 'completada', texto: `${datos?.tareasFinalizadas ?? 0} tareas completadas`, sub: 'Estado: Finalizada', color: '#2eaa68', bg: '#e4f5ed', icon: CheckCheck },
-    { tipo: 'pendiente',  texto: `${datos?.tareasPendientes ?? 0} tareas sin asignar`,  sub: 'Estado: Pendiente',  color: '#d4a428', bg: '#fdf5e0', icon: Inbox },
+    { tipo: 'completada', texto: `${datos?.tareasFinalizadas ?? 0} tickets completados`, sub: 'Estado: Finalizado', color: '#2eaa68', bg: '#e4f5ed', icon: CheckCheck },
+    { tipo: 'pendiente',  texto: `${datos?.tareasPendientes ?? 0} tickets sin asignar`,  sub: 'Estado: Pendiente',  color: '#d4a428', bg: '#fdf5e0', icon: Inbox },
     { tipo: 'proceso',    texto: `${datos?.tareasEnProceso ?? 0} en ejecución activa`,   sub: 'Estado: En proceso',  color: '#5a7de8', bg: '#eef1fc', icon: CircleDot },
     { tipo: 'espera',     texto: `${datos?.tareasEnEspera ?? 0} en espera`,              sub: 'Estado: En espera',  color: '#a855f7', bg: '#f3e8ff', icon: Timer },
-    { tipo: 'vencida',    texto: `${datos?.tareasVencidas ?? 0} tareas fuera de plazo`,  sub: 'Estado: Vencida',    color: '#d95f50', bg: '#faeceb', icon: AlertTriangle },
+    { tipo: 'vencida',    texto: `${datos?.tareasVencidas ?? 0} tickets fuera de plazo`, sub: 'Estado: Vencido',    color: '#d95f50', bg: '#faeceb', icon: AlertTriangle },
   ];
 
   return (
@@ -541,9 +541,9 @@ function SeccionActividad({ datos }) {
               <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: 12, background: '#faeceb', borderRadius: 10, border: '1px solid #fca5a580' }}>
                 <AlertTriangle size={16} strokeWidth={2} style={{ color: '#d95f50', flexShrink: 0, marginTop: 1 }} />
                 <div>
-                  <div style={{ fontFamily: 'Nunito, sans-serif', fontWeight: 700, fontSize: 12.5, color: '#d95f50' }}>Tareas vencidas</div>
+                  <div style={{ fontFamily: 'Nunito, sans-serif', fontWeight: 700, fontSize: 12.5, color: '#d95f50' }}>Tickets vencidos</div>
                   <div style={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: 11.5, color: '#b04030', marginTop: 2 }}>
-                    {datos.tareasVencidas} tarea{datos.tareasVencidas !== 1 ? 's' : ''} superaron su fecha límite.
+                    {datos.tareasVencidas} ticket{datos.tareasVencidas !== 1 ? 's' : ''} superaron su fecha límite.
                   </div>
                 </div>
               </div>
@@ -554,7 +554,7 @@ function SeccionActividad({ datos }) {
                 <div>
                   <div style={{ fontFamily: 'Nunito, sans-serif', fontWeight: 700, fontSize: 12.5, color: '#d4a428' }}>Alta prioridad</div>
                   <div style={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: 11.5, color: '#a07c18', marginTop: 2 }}>
-                    {datos.tareasAltaPrioridad} tarea{datos.tareasAltaPrioridad !== 1 ? 's' : ''} con prioridad alta activas.
+                    {datos.tareasAltaPrioridad} ticket{datos.tareasAltaPrioridad !== 1 ? 's' : ''} con prioridad alta activos.
                   </div>
                 </div>
               </div>
@@ -707,7 +707,7 @@ export default function DashboardPage() {
 
       <div style={{ animation: 'dashIn 0.3s ease both' }}>
         {tabActivo === 'general'   && <VistaGeneral    datos={datos} navigate={navigate} />}
-        {tabActivo === 'tareas'    && <GestionTareas   navigate={navigate} />}
+        {tabActivo === 'tickets'   && <GestionTickets  navigate={navigate} />}
         {tabActivo === 'tecnicos'  && <SeccionTecnicos datos={datos} />}
         {tabActivo === 'actividad' && <SeccionActividad datos={datos} />}
       </div>

@@ -20,13 +20,13 @@ public class DashboardController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<DashboardResponse> obtenerMetricas() {
         return ResponseEntity.ok(dashboardService.obtenerMetricas());
     }
 
     @GetMapping("/tecnico/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<TecnicoMetricaResponse> metricasTecnico(@PathVariable String id) {
         return ResponseEntity.ok(dashboardService.obtenerMetricasTecnico(id));
     }

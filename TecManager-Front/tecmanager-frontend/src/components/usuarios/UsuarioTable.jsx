@@ -31,7 +31,7 @@ export default function UsuarioTable({ usuarios, onEditar, onCambiarEstado, onEl
   const getBadgeRol = (rol) => {
     const clases = {
       ADMIN:     'badge badge-admin',
-      ASIGNADOR: 'badge badge-asignador',
+      SUPERVISOR: 'badge badge-supervisor',
       TECNICO:   'badge badge-tecnico',
     };
     return clases[rol] || 'badge';
