@@ -1,27 +1,45 @@
 import { useState, useEffect } from 'react';
+import {
+  Wrench, Server, Monitor, Database, Network,
+  Code, Shield, Wifi, HardDrive, Cpu,
+  Globe, Lock, Settings, AlertTriangle, Tag,
+  Pencil, X, Trash2, RotateCcw, RefreshCw,
+  Loader2, Plus,
+} from 'lucide-react';
 import api from '../api/axiosConfig';
 import '../styles/usuarios.css';
+import '../styles/especialidades.css';
 
-const ICONOS = [
-  'Wrench', 'Server', 'Monitor', 'Database', 'Network',
-  'Code', 'Shield', 'Wifi', 'HardDrive', 'Cpu',
-  'Globe', 'Lock', 'Settings', 'AlertTriangle', 'Etiqueta',
-];
+/* ── Icon map ─────────────────────────────────────────────── */
+const ICON_MAP = {
+  Wrench, Server, Monitor, Database, Network,
+  Code, Shield, Wifi, HardDrive, Cpu,
+  Globe, Lock, Settings, AlertTriangle, Etiqueta: Tag,
+};
 
+const ICONOS = Object.keys(ICON_MAP);
+
+function getLucideIcon(name, props = {}) {
+  const Icon = ICON_MAP[name] || Wrench;
+  return <Icon {...props} />;
+}
+
+/* ── Color presets ────────────────────────────────────────── */
 const COLORES_PRESET = [
   '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899',
   '#ef4444', '#f59e0b', '#22c55e', '#14b8a6',
   '#0ea5e9', '#262424',
 ];
 
+/* ── Modal ────────────────────────────────────────────────── */
 function EspecialidadModal({ especialidad, onGuardar, onCerrar }) {
   const [form, setForm] = useState({
-    nombre:      especialidad?.nombre      || '',
+    nombre: especialidad?.nombre || '',
     descripcion: especialidad?.descripcion || '',
-    color:       especialidad?.color       || '#3b82f6',
-    icono:       especialidad?.icono       || 'Wrench',
+    color: especialidad?.color || '#3b82f6',
+    icono: especialidad?.icono || 'Wrench',
   });
-  const [error,     setError]     = useState('');
+  const [error, setError] = useState('');
   const [guardando, setGuardando] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -42,8 +60,13 @@ function EspecialidadModal({ especialidad, onGuardar, onCerrar }) {
       <div className="modal" style={{ maxWidth: 480 }}>
 
         <div className="modal-header">
-          <h2>{especialidad ? '✏️ Editar Especialidad' : '+ Nueva Especialidad'}</h2>
-          <button className="modal-cerrar" onClick={onCerrar}>✕</button>
+          <h2 className="esp-modal-title">
+            <Pencil size={16} />
+            {especialidad ? 'Editar Especialidad' : 'Nueva Especialidad'}
+          </h2>
+          <button className="modal-cerrar" onClick={onCerrar}>
+            <X size={16} />
+          </button>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -62,31 +85,26 @@ function EspecialidadModal({ especialidad, onGuardar, onCerrar }) {
           <div className="form-grupo">
             <label>Descripción</label>
             <textarea
+              className="esp-form-desc"
               value={form.descripcion}
               onChange={e => setForm({ ...form, descripcion: e.target.value })}
               placeholder="Describe esta especialidad..."
               rows={2}
-              style={{ resize: 'vertical' }}
             />
           </div>
 
           {/* Color */}
           <div className="form-grupo">
             <label>Color</label>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', gap: 8,
-              padding: 10, background: '#f8fafc',
-              borderRadius: 10, border: '1px solid #e2e8f0',
-            }}>
+            <div className="esp-color-picker">
               {COLORES_PRESET.map(c => (
                 <div
                   key={c}
                   onClick={() => setForm({ ...form, color: c })}
+                  className="esp-color-swatch"
                   style={{
-                    width: 26, height: 26, borderRadius: '50%',
-                    background: c, cursor: 'pointer',
+                    background: c,
                     border: form.color === c ? '3px solid #1e293b' : '2px solid transparent',
-                    transition: 'border 0.15s',
                   }}
                 />
               ))}
@@ -94,7 +112,7 @@ function EspecialidadModal({ especialidad, onGuardar, onCerrar }) {
                 type="color"
                 value={form.color}
                 onChange={e => setForm({ ...form, color: e.target.value })}
-                style={{ width: 26, height: 26, border: 'none', padding: 0, cursor: 'pointer', borderRadius: '50%' }}
+                className="esp-color-input"
                 title="Color personalizado"
               />
             </div>
@@ -103,55 +121,48 @@ function EspecialidadModal({ especialidad, onGuardar, onCerrar }) {
           {/* Ícono */}
           <div className="form-grupo">
             <label>Ícono</label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            <div className="esp-icon-picker">
               {ICONOS.map(icono => (
                 <button
                   key={icono}
                   type="button"
+                  title={icono}
                   onClick={() => setForm({ ...form, icono })}
+                  className="esp-icon-btn"
                   style={{
-                    padding: '5px 10px',
-                    borderRadius: 8,
                     border: `1.5px solid ${form.icono === icono ? form.color : '#e2e8f0'}`,
                     background: form.icono === icono ? form.color + '20' : 'white',
                     color: form.icono === icono ? form.color : '#64748b',
-                    fontSize: 11, cursor: 'pointer',
-                    fontWeight: form.icono === icono ? 700 : 400,
-                    transition: 'all 0.15s',
                   }}
                 >
-                  {icono}
+                  {getLucideIcon(icono, { size: 16, strokeWidth: 1.9 })}
                 </button>
               ))}
             </div>
           </div>
 
           {/* Preview */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            padding: '10px 14px', background: '#f8fafc',
-            borderRadius: 10, border: '1px solid #e2e8f0',
-            marginBottom: 8,
-          }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: 10,
-              background: form.color + '20',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 18,
-            }}>
-              🔧
+          <div className="esp-preview">
+            <div
+              className="esp-preview-icon"
+              style={{
+                background: form.color + '20',
+                color: form.color,
+              }}
+            >
+              {getLucideIcon(form.icono, { size: 18, strokeWidth: 1.9 })}
             </div>
             <div>
-              <div style={{ fontWeight: 700, color: form.color, fontSize: 14 }}>
+              <div className="esp-preview-name" style={{ color: form.color }}>
                 {form.nombre || 'Nombre de especialidad'}
               </div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>
+              <div className="esp-preview-subtitle">
                 {form.icono}
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+          <div className="esp-modal-actions">
             <button type="button" className="btn btn-secundario" onClick={onCerrar}>
               Cancelar
             </button>
@@ -165,13 +176,14 @@ function EspecialidadModal({ especialidad, onGuardar, onCerrar }) {
   );
 }
 
+/* ── Page ─────────────────────────────────────────────────── */
 export default function EspecialidadesPage() {
   const [especialidades, setEspecialidades] = useState([]);
-  const [cargando,       setCargando]       = useState(true);
-  const [error,          setError]          = useState('');
-  const [exito,          setExito]          = useState('');
-  const [mostrarForm,    setMostrarForm]    = useState(false);
-  const [espEditar,      setEspEditar]      = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
+  const [exito, setExito] = useState('');
+  const [mostrarForm, setMostrarForm] = useState(false);
+  const [espEditar, setEspEditar] = useState(null);
 
   useEffect(() => { cargar(); }, []);
 
@@ -235,14 +247,20 @@ export default function EspecialidadesPage() {
 
       <div className="page-header">
         <div>
-          <h1>🔧 Especialidades</h1>
+          <h1 className="esp-page-title">
+            Especialidades
+          </h1>
           <p className="texto-suave">{especialidades.length} especialidades registradas</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn btn-secundario" onClick={cargar}>🔄 Actualizar</button>
-          <button className="btn btn-primario"
+        <div className="esp-header-actions">
+          <button className="btn btn-secundario esp-btn-content" onClick={cargar}>
+            <RefreshCw size={14} strokeWidth={1.9} />
+            Actualizar
+          </button>
+          <button className="btn btn-primario esp-btn-content"
             onClick={() => { setEspEditar(null); setMostrarForm(true); }}>
-            + Nueva Especialidad
+            <Plus size={15} strokeWidth={2} />
+            Nueva Especialidad
           </button>
         </div>
       </div>
@@ -251,87 +269,77 @@ export default function EspecialidadesPage() {
       {exito && <div className="alerta alerta-exito">{exito}</div>}
 
       {cargando ? (
-        <div className="cargando">⏳ Cargando especialidades...</div>
+        <div className="cargando esp-loading-state">
+          <Loader2 size={16} strokeWidth={1.9} className="esp-loader-icon" />
+          Cargando especialidades...
+        </div>
       ) : especialidades.length === 0 ? (
         <div className="vacio">No hay especialidades. Crea la primera.</div>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-          gap: 14,
-        }}>
+        <div className="esp-grid">
           {especialidades.map(esp => (
-            <div key={esp.id} style={{
-              background: 'white',
+            <div key={esp.id} className="esp-card" style={{
               border: `1px solid ${esp.activa ? '#e2e8f0' : '#fca5a580'}`,
-              borderRadius: 14, padding: 18,
-              boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
               opacity: esp.activa ? 1 : 0.65,
-              display: 'flex', flexDirection: 'column', gap: 10,
             }}>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{
-                    width: 38, height: 38, borderRadius: 10,
+              <div className="esp-card-header">
+                <div className="esp-card-info">
+                  <div className="esp-card-icon" style={{
                     background: esp.color + '20',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 18, flexShrink: 0,
+                    color: esp.color,
                   }}>
-                    🔧
+                    {getLucideIcon(esp.icono, { size: 18, strokeWidth: 1.9 })}
                   </div>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: 14, color: '#1e293b' }}>
+                    <div className="esp-card-title">
                       {esp.nombre}
                     </div>
                     {!esp.activa && (
-                      <span style={{ fontSize: 10, color: '#ef4444', fontWeight: 700 }}>
+                      <span className="esp-card-inactive">
                         Inactiva
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: 5 }}>
+                <div className="esp-card-actions">
                   <button
-                    className="btn btn-secundario"
-                    style={{ padding: '4px 8px', fontSize: 12 }}
+                    className="btn btn-secundario esp-action-btn"
                     onClick={() => { setEspEditar(esp); setMostrarForm(true); }}
+                    title="Editar"
                   >
-                    ✏️
+                    <Pencil size={13} strokeWidth={1.9} />
                   </button>
                   {esp.activa ? (
                     <button
-                      className="btn btn-peligro"
-                      style={{ padding: '4px 8px', fontSize: 12 }}
+                      className="btn btn-peligro esp-action-btn"
                       onClick={() => handleDesactivar(esp.id)}
+                      title="Desactivar"
                     >
-                      🗑️
+                      <Trash2 size={13} strokeWidth={1.9} />
                     </button>
                   ) : (
                     <button
-                      className="btn btn-secundario"
-                      style={{ padding: '4px 8px', fontSize: 12, color: '#22c55e' }}
+                      className="btn btn-secundario esp-action-btn reactivate"
                       onClick={() => handleReactivar(esp.id)}
+                      title="Reactivar"
                     >
-                      ✓
+                      <RotateCcw size={13} strokeWidth={1.9} />
                     </button>
                   )}
                 </div>
               </div>
 
               {esp.descripcion && (
-                <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>
+                <p className="esp-card-desc">
                   {esp.descripcion}
                 </p>
               )}
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <div style={{
-                  width: 10, height: 10, borderRadius: '50%',
-                  background: esp.color, flexShrink: 0,
-                }} />
-                <span style={{ fontSize: 11, color: '#94a3b8' }}>{esp.icono}</span>
+              <div className="esp-card-footer">
+                <div className="esp-color-dot" style={{ background: esp.color }} />
+                <span className="esp-icon-label">{esp.icono}</span>
               </div>
             </div>
           ))}

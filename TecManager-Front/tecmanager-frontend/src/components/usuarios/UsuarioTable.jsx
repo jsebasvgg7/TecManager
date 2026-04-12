@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/axiosConfig';
 import AsignarEspecialidadesModal from './AsignarEspecialidadesModal';
+import { Check, X, Pencil, Wrench, Trash2 } from 'lucide-react';
 
 export default function UsuarioTable({ usuarios, onEditar, onCambiarEstado, onEliminar, onActualizar }) {
 
@@ -113,12 +114,13 @@ export default function UsuarioTable({ usuarios, onEditar, onCambiarEstado, onEl
                       padding: '3px 10px', borderRadius: 20,
                       border: 'none', cursor: 'pointer',
                       fontSize: 12, fontWeight: 600,
-                      background: usuario.activo ? '#dcfce7' : '#fee2e2',
-                      color: usuario.activo ? '#166534' : '#991b1b',
-                    }}
-                  >
-                    {usuario.activo ? '✓ Activo' : '✗ Inactivo'}
-                  </button>
+                    background: usuario.activo ? '#dcfce7' : '#fee2e2',
+                    color: usuario.activo ? '#166534' : '#991b1b',
+                    display: 'inline-flex', alignItems: 'center', gap: 4
+                  }}
+                >
+                  {usuario.activo ? <><Check size={14}/> Activo</> : <><X size={14}/> Inactivo</>}
+                </button>
                 </td>
 
                 <td style={{ color: '#64748b', fontSize: 13 }}>
@@ -127,33 +129,34 @@ export default function UsuarioTable({ usuarios, onEditar, onCambiarEstado, onEl
                     : '—'}
                 </td>
 
-                {/* Acciones */}
                 <td>
                   <div style={{ display: 'flex', gap: 5 }}>
                     <button
                       className="btn btn-secundario"
-                      style={{ padding: '5px 10px', fontSize: 12 }}
+                      style={{ padding: '5px 10px', fontSize: 12, display: 'flex', alignItems: 'center' }}
                       onClick={() => onEditar(usuario)}
+                      title="Editar usuario"
                     >
-                      ✏️
+                      <Pencil size={13} strokeWidth={2} />
                     </button>
                     {/* Botón especialidades solo para técnicos */}
                     {usuario.rol === 'TECNICO' && (
                       <button
                         className="btn btn-secundario"
-                        style={{ padding: '5px 10px', fontSize: 12 }}
+                        style={{ padding: '5px 10px', fontSize: 12, display: 'flex', alignItems: 'center' }}
                         title="Asignar especialidades"
                         onClick={() => setUsuarioEspecialidades(usuario)}
                       >
-                        🔧
+                        <Wrench size={13} strokeWidth={2} />
                       </button>
                     )}
                     <button
                       className="btn btn-peligro"
-                      style={{ padding: '5px 10px', fontSize: 12 }}
+                      style={{ padding: '5px 10px', fontSize: 12, display: 'flex', alignItems: 'center' }}
+                      title="Eliminar usuario"
                       onClick={() => onEliminar(usuario.id)}
                     >
-                      🗑️
+                      <Trash2 size={13} strokeWidth={2} />
                     </button>
                   </div>
                 </td>

@@ -11,11 +11,12 @@ import '../../styles/navbar.css';
 
 // Map route → readable page title
 const TITULOS = {
-  '/dashboard':  'Dashboard',
-  '/tareas':     'Tareas',
-  '/usuarios':   'Usuarios',
-  '/categorias': 'Categorías',
-  '/mis-tareas': 'Mis Tareas',
+  '/dashboard':      'Dashboard',
+  '/tareas':         'Tareas',
+  '/usuarios':       'Usuarios',
+  '/categorias':     'Categorías',
+  '/especialidades': 'Especialidades',
+  '/mis-tareas':     'Mis Tareas',
 };
 
 export default function Navbar() {
@@ -86,16 +87,18 @@ export default function Navbar() {
                 data-label="Categorías"
                 onClick={() => setMenuAbierto(false)}
               >
-
-              <NavLink to="/usuarios" className="sidebar-link">
-                👥 Usuarios
-              </NavLink>
-              <NavLink to="/especialidades" className="sidebar-link">
-                🔧 Especialidades
-              </NavLink>
-                
                 <span className="sidebar-link-icon">
                   <Tag size={17} strokeWidth={1.9} />
+                </span>
+              </NavLink>
+              <NavLink
+                to="/especialidades"
+                className="sidebar-link"
+                data-label="Especialidades"
+                onClick={() => setMenuAbierto(false)}
+              >
+                <span className="sidebar-link-icon">
+                  <Wrench size={17} strokeWidth={1.9} />
                 </span>
               </NavLink>
             </>

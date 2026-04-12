@@ -1,5 +1,23 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/axiosConfig';
+import {
+  Wrench, Server, Monitor, Database, Network,
+  Code, Shield, Wifi, HardDrive, Cpu,
+  Globe, Lock, Settings, AlertTriangle, Tag,
+  X, Loader2, Check
+} from 'lucide-react';
+
+/* ── Icon map ─────────────────────────────────────────────── */
+const ICON_MAP = {
+  Wrench, Server, Monitor, Database, Network,
+  Code, Shield, Wifi, HardDrive, Cpu,
+  Globe, Lock, Settings, AlertTriangle, Etiqueta: Tag,
+};
+
+function getLucideIcon(name, props = {}) {
+  const Icon = ICON_MAP[name] || Wrench;
+  return <Icon {...props} />;
+}
 
 export default function AsignarEspecialidadesModal({ usuario, onCerrar, onGuardar }) {
   const [especialidades,    setEspecialidades]    = useState([]);
@@ -54,18 +72,25 @@ export default function AsignarEspecialidadesModal({ usuario, onCerrar, onGuarda
 
         <div className="modal-header">
           <div>
-            <h2>🔧 Especialidades</h2>
+            <h2 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Wrench size={20} strokeWidth={1.9} />
+              Especialidades
+            </h2>
             <p style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>
               {usuario.nombre}
             </p>
           </div>
-          <button className="modal-cerrar" onClick={onCerrar}>✕</button>
+          <button className="modal-cerrar" onClick={onCerrar}>
+            <X size={16} />
+          </button>
         </div>
 
         {error && <div className="alerta alerta-error">{error}</div>}
 
         {cargando ? (
-          <div className="cargando">⏳ Cargando...</div>
+          <div className="cargando" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Loader2 size={16} className="spin" strokeWidth={2} /> Cargando...
+          </div>
         ) : especialidades.length === 0 ? (
           <div className="vacio">No hay especialidades activas. Crea una primero.</div>
         ) : (
@@ -92,10 +117,10 @@ export default function AsignarEspecialidadesModal({ usuario, onCerrar, onGuarda
                     border: `2px solid ${seleccionada ? esp.color : '#cbd5e1'}`,
                     background: seleccionada ? esp.color : 'white',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, color: 'white', fontWeight: 700,
+                    color: 'white',
                     transition: 'all 0.15s',
                   }}>
-                    {seleccionada ? '✓' : ''}
+                    {seleccionada ? <Check size={14} strokeWidth={3} /> : ''}
                   </div>
 
                   {/* Ícono color */}
@@ -103,9 +128,9 @@ export default function AsignarEspecialidadesModal({ usuario, onCerrar, onGuarda
                     width: 32, height: 32, borderRadius: 8,
                     background: esp.color + '20',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 16, flexShrink: 0,
+                    color: esp.color, flexShrink: 0,
                   }}>
-                    🔧
+                    {getLucideIcon(esp.icono, { size: 16, strokeWidth: 1.9 })}
                   </div>
 
                   {/* Info */}
@@ -148,8 +173,9 @@ export default function AsignarEspecialidadesModal({ usuario, onCerrar, onGuarda
             className="btn btn-primario"
             onClick={handleGuardar}
             disabled={guardando}
+            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
           >
-            {guardando ? 'Guardando...' : 'Guardar especialidades'}
+            {guardando ? <><Loader2 size={14} className="spin" /> Guardando...</> : 'Guardar especialidades'}
           </button>
         </div>
       </div>
