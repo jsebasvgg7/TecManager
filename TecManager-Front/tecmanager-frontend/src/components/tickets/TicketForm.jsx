@@ -11,17 +11,17 @@ const PRIORIDADES = [
   { valor: 'BAJA',  label: 'Baja',  color: '#22c55e', bg: '#dcfce7' },
 ];
 
-export default function TareaForm({ tarea, onGuardar, onCerrar }) {
+export default function TicketForm({ ticket, onGuardar, onCerrar }) {
   const [form, setForm] = useState({
-    titulo:              tarea?.titulo || '',
-    descripcion:         tarea?.descripcion || '',
-    prioridad:           tarea?.prioridad || 'MEDIA',
-    tecnicoId:           tarea?.tecnicoId || '',
-    tecnicosIds:         tarea?.tecnicosIds || [],
-    fechaLimite:         tarea?.fechaLimite ? new Date(tarea.fechaLimite).toISOString().slice(0, 16) : '',
-    tiempoEstimadoHoras: tarea?.tiempoEstimadoHoras || '',
-    categoriaId:         tarea?.categoriaId || '',
-    etiquetas:           tarea?.etiquetas || [],
+    titulo:              ticket?.titulo || '',
+    descripcion:         ticket?.descripcion || '',
+    prioridad:           ticket?.prioridad || 'MEDIA',
+    tecnicoId:           ticket?.tecnicoId || '',
+    tecnicosIds:         ticket?.tecnicosIds || [],
+    fechaLimite:         ticket?.fechaLimite ? new Date(ticket.fechaLimite).toISOString().slice(0, 16) : '',
+    tiempoEstimadoHoras: ticket?.tiempoEstimadoHoras || '',
+    categoriaId:         ticket?.categoriaId || '',
+    etiquetas:           ticket?.etiquetas || [],
   });
 
   const [tecnicos,    setTecnicos]    = useState([]);
@@ -107,7 +107,7 @@ export default function TareaForm({ tarea, onGuardar, onCerrar }) {
             }}>
               <FileText size={16} strokeWidth={2} style={{ color: '#262424' }} />
             </div>
-            <h2>{tarea ? 'Editar Tarea' : 'Nueva Tarea'}</h2>
+            <h2>{ticket ? 'Editar Ticket' : 'Nuevo Ticket'}</h2>
           </div>
           <button className="modal-cerrar" onClick={onCerrar}>
             <X size={15} strokeWidth={2.5} />
@@ -137,7 +137,7 @@ export default function TareaForm({ tarea, onGuardar, onCerrar }) {
             </label>
             <textarea
               name="descripcion" value={form.descripcion} onChange={handleChange}
-              placeholder="Describe la tarea en detalle..." rows={3} style={{ resize: 'vertical' }}
+              placeholder="Describe el ticket en detalle..." rows={3} style={{ resize: 'vertical' }}
             />
           </div>
 
@@ -338,12 +338,12 @@ export default function TareaForm({ tarea, onGuardar, onCerrar }) {
 
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
             <button type="button" className="btn btn-secundario" onClick={onCerrar}>
-              Cancelar
+               Cancelar
             </button>
             <button type="submit" className="btn btn-primario" disabled={guardando}>
               {guardando
                 ? <><Loader2 size={14} className="spin" /> Guardando...</>
-                : tarea ? 'Actualizar tarea' : 'Crear tarea'
+                : ticket ? 'Actualizar ticket' : 'Crear ticket'
               }
             </button>
           </div>

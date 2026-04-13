@@ -25,13 +25,13 @@ public class TareaController {
     }
 
     // ── GET /api/tareas ──
-    // ADMIN y ASIGNADOR ven todas; TECNICO solo las suyas
+    // ADMIN y SUPERVISOR ven todas; TECNICO solo las suyas
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR','TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR','TECNICO')")
     public ResponseEntity<List<TareaResponse>> listar(Authentication auth) {
         boolean esPrivilegiado = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
-                            || a.getAuthority().equals("ROLE_ASIGNADOR"));
+                            || a.getAuthority().equals("ROLE_SUPERVISOR"));
 
         List<TareaResponse> tareas = esPrivilegiado
                 ? service.listarTodas()
@@ -49,21 +49,21 @@ public class TareaController {
 
     // ── GET /api/tareas/categoria/{categoriaId} ──
     @GetMapping("/categoria/{categoriaId}")
-    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR')")
     public ResponseEntity<List<TareaResponse>> porCategoria(@PathVariable String categoriaId) {
         return ResponseEntity.ok(service.listarPorCategoria(categoriaId));
     }
 
     // ── GET /api/tareas/{id} ──
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR','TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR','TECNICO')")
     public ResponseEntity<TareaResponse> obtener(@PathVariable String id) {
         return ResponseEntity.ok(service.obtenerPorId(id));
     }
 
-    // ── POST /api/tareas  (ADMIN + ASIGNADOR) ──
+    // ── POST /api/tareas  (ADMIN + SUPERVISOR) ──
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR')")
     public ResponseEntity<TareaResponse> crear(
             @Valid @RequestBody TareaRequest req,
             Authentication auth) {
@@ -71,9 +71,9 @@ public class TareaController {
                 .body(service.crear(req, auth.getName()));
     }
 
-    // ── PUT /api/tareas/{id}  (ADMIN + ASIGNADOR) ──
+    // ── PUT /api/tareas/{id}  (ADMIN + SUPERVISOR) ──
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR')")
     public ResponseEntity<TareaResponse> actualizar(
             @PathVariable String id,
             @Valid @RequestBody TareaRequest req,
@@ -83,7 +83,7 @@ public class TareaController {
 
     // ── PATCH /api/tareas/{id}/estado  (todos los roles) ──
     @PatchMapping("/{id}/estado")
-    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR','TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR','TECNICO')")
     public ResponseEntity<TareaResponse> cambiarEstado(
             @PathVariable String id,
             @RequestBody CambioEstadoRequest req,
@@ -91,10 +91,10 @@ public class TareaController {
         return ResponseEntity.ok(service.cambiarEstado(id, req, auth.getName()));
     }
 
-    // ── PATCH /api/tareas/{id}/avance  (TECNICO, ADMIN, ASIGNADOR) ──
+    // ── PATCH /api/tareas/{id}/avance  (TECNICO, ADMIN, SUPERVISOR) ──
     // Body: { "porcentaje": 60 }
     @PatchMapping("/{id}/avance")
-    @PreAuthorize("hasAnyRole('ADMIN','ASIGNADOR','TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR','TECNICO')")
     public ResponseEntity<TareaResponse> actualizarAvance(
             @PathVariable String id,
             @RequestBody Map<String, Integer> body,

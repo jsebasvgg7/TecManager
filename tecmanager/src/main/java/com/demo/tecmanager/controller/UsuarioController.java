@@ -40,13 +40,13 @@ public class UsuarioController {
     }
 
     @GetMapping("/activos")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<List<UsuarioResponse>> listarActivos() {
         return ResponseEntity.ok(usuarioService.listarActivos());
     }
 
     @GetMapping("/rol/{rol}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ASIGNADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<List<UsuarioResponse>> listarPorRol(@PathVariable Rol rol) {
         return ResponseEntity.ok(usuarioService.listarPorRol(rol));
     }
@@ -75,7 +75,7 @@ public class UsuarioController {
     }
 
     @PatchMapping("/{id}/estado")
-    @PreAuthorize("hasAnyRole('TECNICO', 'ADMIN', 'ASIGNADOR')")
+    @PreAuthorize("hasAnyRole('TECNICO', 'ADMIN', 'SUPERVISOR')")
     public ResponseEntity<UsuarioResponse> cambiarEstado(@PathVariable String id) {
         return ResponseEntity.ok(usuarioService.cambiarEstado(id));
     }

@@ -83,7 +83,7 @@ export default function UsuariosPage() {
         <select value={filtroRol} onChange={e => setFiltroRol(e.target.value)} className="filtro-select">
           <option value="TODOS">Todos los roles</option>
           <option value="ADMIN">Admin</option>
-          <option value="ASIGNADOR">Asignador</option>
+          <option value="SUPERVISOR">Supervisor</option>
           <option value="TECNICO">Técnico</option>
         </select>
       </div>
@@ -94,7 +94,8 @@ export default function UsuariosPage() {
         <UsuarioTable usuarios={usuariosFiltrados}
           onEditar={(u) => { setUsuarioEditar(u); setMostrarForm(true); }}
           onCambiarEstado={handleCambiarEstado}
-          onEliminar={handleEliminar} />
+          onEliminar={handleEliminar}
+          onActualizar={cargarUsuarios} />
       )}
 
       {mostrarForm && (

@@ -48,8 +48,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
 
                 // ── Usuarios ──
-                .requestMatchers(HttpMethod.GET, "/api/usuarios/rol/**").hasAnyRole("ADMIN", "ASIGNADOR")
-                .requestMatchers(HttpMethod.GET, "/api/usuarios/activos").hasAnyRole("ADMIN", "ASIGNADOR")
+                .requestMatchers(HttpMethod.GET, "/api/usuarios/rol/**").hasAnyRole("ADMIN", "SUPERVISOR")
+                .requestMatchers(HttpMethod.GET, "/api/usuarios/activos").hasAnyRole("ADMIN", "SUPERVISOR")
                 .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
 
                 // ── Categorías: lectura para todos, escritura solo ADMIN ──
@@ -61,24 +61,27 @@ public class SecurityConfig {
 
                 // ── Tareas ──
                 .requestMatchers(HttpMethod.GET,    "/api/tareas/mis-tareas").hasRole("TECNICO")
-                .requestMatchers(HttpMethod.POST,   "/api/tareas").hasAnyRole("ADMIN", "ASIGNADOR")
-                .requestMatchers(HttpMethod.PUT,    "/api/tareas/**").hasAnyRole("ADMIN", "ASIGNADOR")
+                .requestMatchers(HttpMethod.POST,   "/api/tareas").hasAnyRole("ADMIN", "SUPERVISOR")
+                .requestMatchers(HttpMethod.PUT,    "/api/tareas/**").hasAnyRole("ADMIN", "SUPERVISOR")
                 .requestMatchers(HttpMethod.DELETE, "/api/tareas/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PATCH,  "/api/tareas/**").authenticated()
                 .requestMatchers(HttpMethod.GET,    "/api/tareas/**").authenticated()
 
                 // ── Reportes ──
                 .requestMatchers(HttpMethod.GET, "/api/reportes").hasRole("ADMIN")
-                .requestMatchers("/api/reportes/**").hasAnyRole("ADMIN", "ASIGNADOR")
+                .requestMatchers("/api/reportes/**").hasAnyRole("ADMIN", "SUPERVISOR")
 
                 // ── Historial ──
-                .requestMatchers("/api/historial/**").hasAnyRole("ADMIN", "ASIGNADOR")
+                .requestMatchers("/api/historial/**").hasAnyRole("ADMIN", "SUPERVISOR")
 
                 // ── Dashboard ──
-                .requestMatchers("/api/dashboard/**").hasAnyRole("ADMIN", "ASIGNADOR")
+                .requestMatchers("/api/dashboard/**").hasAnyRole("ADMIN", "SUPERVISOR")
 
                 // ── Notificaciones ──
                 .requestMatchers("/api/notificaciones/**").authenticated()
+
+                // ── Especialidades ──
+                .requestMatchers("/api/especialidades/**").hasAnyRole("ADMIN", "SUPERVISOR", "TECNICO")
 
                 .anyRequest().authenticated()
             )

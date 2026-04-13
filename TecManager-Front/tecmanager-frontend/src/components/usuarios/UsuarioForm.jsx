@@ -69,7 +69,7 @@ export default function UsuarioForm({ usuario, onGuardar, onCerrar }) {
             <label>Rol</label>
             <select name="rol" value={form.rol} onChange={handleChange}>
               <option value="TECNICO">Técnico</option>
-              <option value="ASIGNADOR">Asignador</option>
+              <option value="SUPERVISOR">Supervisor</option>
               <option value="ADMIN">Administrador</option>
             </select>
           </div>

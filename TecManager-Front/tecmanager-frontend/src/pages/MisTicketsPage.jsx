@@ -1,45 +1,45 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
-import TareaCard from '../components/tareas/TareaCard';
-import CambioEstadoModal from '../components/tareas/CambioEstadoModal';
+import TicketCard from '../components/tickets/TicketCard';
+import CambioEstadoModal from '../components/tickets/CambioEstadoModal';
 import { Wrench, RefreshCw } from 'lucide-react';
-import '../styles/tareas.css';
+import '../styles/tickets.css';
 
 const FILTROS = [
-  { valor: 'TODOS',     label: 'Todas'      },
+  { valor: 'TODOS',     label: 'Todos'      },
   { valor: 'PENDIENTE', label: 'Pendientes', color: '#f59e0b' },
   { valor: 'EN_PROCESO',label: 'En Proceso', color: '#3b82f6' },
-  { valor: 'FINALIZADA',label: 'Finalizadas',color: '#22c55e' },
+  { valor: 'FINALIZADA',label: 'Finalizados',color: '#22c55e' },
 ];
 
-export default function MisTareasPage() {
-  const [tareas, setTareas]           = useState([]);
+export default function MisTicketsPage() {
+  const [tickets, setTickets]         = useState([]);
   const [cargando, setCargando]       = useState(true);
   const [error, setError]             = useState('');
   const [exito, setExito]             = useState('');
-  const [tareaEstado, setTareaEstado] = useState(null);
+  const [ticketEstado, setTicketEstado] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState('TODOS');
 
-  useEffect(() => { cargarMisTareas(); }, []);
+  useEffect(() => { cargarMisTickets(); }, []);
 
-  const cargarMisTareas = async () => {
-    try { setCargando(true); const r = await api.get('/tareas/mis-tareas'); setTareas(r.data); }
-    catch { setError('Error al cargar tus tareas'); }
+  const cargarMisTickets = async () => {
+    try { setCargando(true); const r = await api.get('/tareas/mis-tareas'); setTickets(r.data); }
+    catch { setError('Error al cargar tus tickets'); }
     finally { setCargando(false); }
   };
 
   const handleCambiarEstado = async (datos) => {
     try {
-      await api.patch(`/tareas/${tareaEstado.id}/estado`, datos);
+      await api.patch(`/tareas/${ticketEstado.id}/estado`, datos);
       setExito('Estado actualizado correctamente');
       setTimeout(() => setExito(''), 3000);
-      setTareaEstado(null); cargarMisTareas();
+      setTicketEstado(null); cargarMisTickets();
     } catch (err) { throw new Error(err.response?.data?.mensaje || 'Error al cambiar estado'); }
   };
 
-  const tareasFiltradas = tareas.filter(t => filtroEstado === 'TODOS' || t.estado === filtroEstado);
+  const ticketsFiltrados = tickets.filter(t => filtroEstado === 'TODOS' || t.estado === filtroEstado);
 
-  const count = (estado) => tareas.filter(t => t.estado === estado).length;
+  const count = (estado) => tickets.filter(t => t.estado === estado).length;
 
   return (
     <div className="contenedor">
@@ -47,8 +47,8 @@ export default function MisTareasPage() {
       <div className="page-header">
         <div>
           <p className="dash-eyebrow">Mi panel</p>
-          <h1>Mis Tareas</h1>
-          <p className="texto-suave">{tareas.length} tareas asignadas</p>
+          <h1>Mis Tickets</h1>
+          <p className="texto-suave">{tickets.length} tickets asignados</p>
         </div>
       </div>
 
@@ -62,7 +62,7 @@ export default function MisTareasPage() {
             onClick={() => setFiltroEstado(valor)}
           >
             <span className="resumen-num" style={ valor !== 'TODOS' ? { color } : {} }>
-              {valor === 'TODOS' ? tareas.length : count(valor)}
+              {valor === 'TODOS' ? tickets.length : count(valor)}
             </span>
             <span>{label}</span>
           </div>
@@ -70,16 +70,16 @@ export default function MisTareasPage() {
       </div>
 
       {cargando ? (
-        <div className="cargando"><RefreshCw size={18} className="spin" /> Cargando tareas...</div>
-      ) : tareasFiltradas.length === 0 ? (
+        <div className="cargando"><RefreshCw size={18} className="spin" /> Cargando tickets...</div>
+      ) : ticketsFiltrados.length === 0 ? (
         <div className="vacio">
-          {filtroEstado === 'TODOS' ? 'No tienes tareas asignadas' : `No tienes tareas en este estado`}
+          {filtroEstado === 'TODOS' ? 'No tienes tickets asignados' : `No tienes tickets en este estado`}
         </div>
       ) : (
-        <div className="tareas-grid">
-          {tareasFiltradas.map(tarea => (
-            <TareaCard key={tarea.id} tarea={tarea}
-              onCambiarEstado={(t) => setTareaEstado(t)}
+        <div className="tickets-grid">
+          {ticketsFiltrados.map(ticket => (
+            <TicketCard key={ticket.id} tarea={ticket} ticket={ticket}
+              onCambiarEstado={(t) => setTicketEstado(t)}
               onEditar={() => {}} onVerHistorial={() => {}}
               soloLectura={true}
             />
@@ -87,9 +87,9 @@ export default function MisTareasPage() {
         </div>
       )}
 
-      {tareaEstado && (
-        <CambioEstadoModal tarea={tareaEstado} onGuardar={handleCambiarEstado}
-          onCerrar={() => setTareaEstado(null)} />
+      {ticketEstado && (
+        <CambioEstadoModal ticket={ticketEstado} onGuardar={handleCambiarEstado}
+          onCerrar={() => setTicketEstado(null)} />
       )}
     </div>
   );

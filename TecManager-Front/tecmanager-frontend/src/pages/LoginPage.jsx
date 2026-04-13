@@ -35,7 +35,7 @@ export default function LoginPage() {
       login(response.data);
 
       const rol = response.data.rol;
-      if (rol === 'ADMIN' || rol === 'ASIGNADOR') {
+      if (rol === 'ADMIN' || rol === 'SUPERVISOR') {
         navigate('/dashboard');
       } else {
         navigate('/mis-tareas');
@@ -145,7 +145,7 @@ export default function LoginPage() {
           </div>
 
           <div className="login-right-headline">
-            <h2>Gestión de tareas<br />para equipos técnicos</h2>
+            <h2>Gestión de tickets<br />para equipos técnicos</h2>
             <p>Centraliza, asigna y monitorea el trabajo de tu equipo desde un solo lugar.</p>
           </div>
 
@@ -155,7 +155,7 @@ export default function LoginPage() {
                 <ClipboardList size={18} strokeWidth={2} />
               </div>
               <div className="login-feature-text">
-                <span className="login-feature-title">Gestión de tareas</span>
+                <span className="login-feature-title">Gestión de tickets</span>
                 <span className="login-feature-desc">Crea, asigna y da seguimiento a cada orden de trabajo</span>
               </div>
             </div>
@@ -186,7 +186,7 @@ export default function LoginPage() {
               </div>
               <div className="login-feature-text">
                 <span className="login-feature-title">Historial completo</span>
-                <span className="login-feature-desc">Trazabilidad total de cada tarea completada</span>
+                <span className="login-feature-desc">Trazabilidad total de cada ticket completado. Nunca pierdas el hilo de progreso.</span>
               </div>
             </div>
           </div>

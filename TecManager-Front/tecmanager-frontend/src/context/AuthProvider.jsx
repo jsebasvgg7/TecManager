@@ -17,8 +17,7 @@ export function AuthProvider({ children }) {
 
       if (expirado) {
         localStorage.clear();
-        setCargando(false);
-        return;
+        return; 
       }
 
       setUsuario(JSON.parse(usuarioGuardado));
@@ -43,12 +42,12 @@ export function AuthProvider({ children }) {
 
   const logout = () => { localStorage.clear(); setUsuario(null); };
   const esAdmin = () => usuario?.rol === 'ADMIN';
-  const esAsignador = () => usuario?.rol === 'ASIGNADOR';
+  const esSupervisor = () => usuario?.rol === 'SUPERVISOR';
   const esTecnico = () => usuario?.rol === 'TECNICO';
 
   return (
     <AuthContext.Provider value={{
-      usuario, cargando, login, logout, esAdmin, esAsignador, esTecnico
+      usuario, cargando, login, logout, esAdmin, esSupervisor, esTecnico
     }}>
       {children}
     </AuthContext.Provider>

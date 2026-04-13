@@ -1,6 +1,8 @@
 package com.demo.tecmanager.document;
 
 import com.demo.tecmanager.enums.Rol;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -33,6 +35,9 @@ public class Usuario {
     @Field("fecha_creacion")
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
+    @Field("especialidad_ids")
+    private List<String> especialidadIds = new ArrayList<>();
+
     public Usuario() {}
 
     public Usuario(String nombre, String email, String password, Rol rol) {
@@ -52,6 +57,7 @@ public class Usuario {
     public Rol getRol() { return rol; }
     public boolean isActivo() { return activo; }
     public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public List<String> getEspecialidadIds() { return especialidadIds; }
 
 
     public void setId(String id) { this.id = id; }
@@ -61,4 +67,5 @@ public class Usuario {
     public void setRol(Rol rol) { this.rol = rol; }
     public void setActivo(boolean activo) { this.activo = activo; }
     public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    public void setEspecialidadIds(List<String> ids) { this.especialidadIds = ids; }
 }

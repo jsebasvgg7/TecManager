@@ -8,8 +8,8 @@ const ESTADOS = [
   { valor: 'FINALIZADA', label: 'Finalizada', Icon: CheckCircle2, color: '#22c55e', bg: '#dcfce7' },
 ];
 
-export default function CambioEstadoModal({ tarea, onGuardar, onCerrar }) {
-  const [nuevoEstado, setNuevoEstado] = useState(tarea?.estado || 'EN_PROCESO');
+export default function CambioEstadoModal({ ticket, onGuardar, onCerrar }) {
+  const [nuevoEstado, setNuevoEstado] = useState(ticket?.estado || 'EN_PROCESO');
   const [comentario, setComentario]   = useState('');
   const [error, setError]             = useState('');
   const [guardando, setGuardando]     = useState(false);
@@ -41,7 +41,7 @@ export default function CambioEstadoModal({ tarea, onGuardar, onCerrar }) {
             </div>
             <div>
               <h2>Cambiar Estado</h2>
-              <p style={{ fontSize: 12, color: '#6b6868', marginTop: 1, fontWeight: 400 }}>{tarea?.titulo}</p>
+              <p style={{ fontSize: 12, color: '#6b6868', marginTop: 1, fontWeight: 400 }}>{ticket?.titulo}</p>
             </div>
           </div>
           <button className="modal-cerrar" onClick={onCerrar}>

@@ -2,7 +2,7 @@
 
 # 🔧 TecManager
 
-### Sistema de Gestión y Asignación de Tareas Técnicas
+### Sistema de Gestión y Asignación de Tickets Técnicos
 
 ![Java](https://img.shields.io/badge/Java-17-orange?style=flat-square&logo=openjdk)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2-green?style=flat-square&logo=springboot)
@@ -18,9 +18,9 @@
 
 ## 📋 Descripción
 
-**TecManager** es una plataforma web diseñada para gestionar y asignar tareas técnicas dentro de organizaciones. Centraliza el flujo de trabajo, define responsabilidades por rol y permite hacer seguimiento en tiempo real al estado de cada actividad.
+**TecManager** es una plataforma web diseñada para gestionar y asignar tickets técnicos dentro de organizaciones. Centraliza el flujo de trabajo, define responsabilidades por rol y permite hacer seguimiento en tiempo real al estado de cada actividad.
 
-El sistema resuelve una problemática común en áreas técnicas: la falta de herramientas especializadas que coordinen la asignación, ejecución y reporte de tareas entre administradores, asignadores y técnicos.
+El sistema resuelve una problemática común en áreas técnicas: la falta de herramientas especializadas que coordinen la asignación, ejecución y reporte de tickets entre administradores, supervisores y técnicos.
 
 ---
 
@@ -45,10 +45,10 @@ TecManager/
 └── TecManager-Front/            # Frontend — React + Vite
     └── src/
         ├── api/                 # Configuración Axios
-        ├── components/          # Componentes reutilizables
+        ├── components/          # Componentes genéricos
         │   ├── dashboard/       # Gráficas y métricas
         │   ├── layout/          # Navbar, rutas privadas
-        │   ├── tareas/          # Cards, formularios, modales
+        │   ├── tickets/         # Cards, formularios, modales de tickets
         │   └── usuarios/        # Tabla y formulario de usuarios
         ├── context/             # AuthContext (JWT)
         ├── pages/               # Páginas principales
@@ -80,7 +80,7 @@ TecManager/
 | React Router DOM | 7 | Enrutamiento SPA |
 | Axios | 1.13 | Cliente HTTP |
 | Recharts | 3.7 | Gráficas del dashboard |
-| Lucide React | 0.577 | Iconografía |
+| Lucide React | 0.577 | Iconografía profesional (sin emojis) |
 | Nunito / Nunito Sans | — | Tipografía |
 
 ---
@@ -91,9 +91,9 @@ El sistema implementa control de acceso basado en **3 roles diferenciados**:
 
 | Rol | Descripción | Acceso |
 |---|---|---|
-| `ADMIN` | Administrador del sistema | Dashboard, Tareas, Usuarios, Historial |
-| `ASIGNADOR` | Crea y asigna tareas al equipo | Dashboard, Tareas, Historial |
-| `TECNICO` | Ejecuta las tareas asignadas | Mis Tareas (lectura + cambio de estado) |
+| `ADMIN` | Administrador del sistema | Dashboard, Tickets, Usuarios, Historial |
+| `SUPERVISOR` | Crea y asigna tickets al equipo | Dashboard, Tickets, Historial |
+| `TECNICO` | Ejecuta los tickets asignados | Mis Tickets (lectura + cambio de estado) |
 
 ---
 
@@ -104,12 +104,12 @@ Usuario se autentica
         │
         ├── ADMIN ──────► Gestión de usuarios + todas las funciones
         │
-        ├── ASIGNADOR ──► Crea tarea → Asigna técnico → Define prioridad
+        ├── SUPERVISOR ──► Crea ticket → Asigna técnico → Define prioridad
         │                       │
         │                       ▼
         │               [Notificación automática al técnico]
         │
-        └── TECNICO ───► Ve sus tareas → Actualiza estado → Genera reporte
+        └── TECNICO ───► Ve sus tickets → Actualiza estado → Genera reporte
                                 │
                                 ▼
                         PENDIENTE → EN_PROCESO → FINALIZADA
@@ -127,22 +127,22 @@ Usuario se autentica
 - Sesión persistida en `localStorage`
 - Interceptor Axios para headers automáticos
 
-### 📊 Dashboard *(ADMIN / ASIGNADOR)*
-- Métricas en tiempo real: total, pendientes, en proceso, finalizadas, vencidas, en espera
+### 📊 Dashboard *(ADMIN / SUPERVISOR)*
+- Métricas en tiempo real: total, pendientes, en proceso, finalizados, vencidos, en espera
 - Panel de KPIs: porcentaje a tiempo, tiempo promedio, alta prioridad
-- Gráfica de barras: tareas por estado
+- Gráfica de barras: tickets por estado
 - Gráfica donut: distribución por prioridad
 - Ranking de técnicos con barra de progreso proporcional
 
-### 📋 Gestión de Tareas *(ADMIN / ASIGNADOR)*
-- CRUD completo de tareas
+### 📋 Gestión de Tickets *(ADMIN / SUPERVISOR)*
+- CRUD completo de tickets
 - Filtros por estado, prioridad y búsqueda por título
-- Indicador visual de tareas vencidas
+- Indicador visual de tickets vencidos
 - Cambio de estado con comentario obligatorio
-- Historial completo de cambios por tarea
+- Historial completo de cambios por ticket
 
-### 🔧 Mis Tareas *(TECNICO)*
-- Vista personalizada de tareas asignadas
+### 🔧 Mis Tickets *(TECNICO)*
+- Vista personalizada de tickets asignados
 - Filtros rápidos por estado
 - Cambio de estado con reporte técnico
 - Notificaciones de nuevas asignaciones
@@ -154,13 +154,13 @@ Usuario se autentica
 - Filtros por rol y búsqueda
 
 ### 📜 Historial y Reportes
-- Timeline completo de cambios por tarea
+- Timeline completo de cambios por ticket
 - Reportes técnicos por cambio de estado
 - Trazabilidad: creación, edición, cambio de estado, reasignación
 
 ### 🔔 Notificaciones
-- Notificaciones automáticas al asignar tareas
-- Alertas al cambiar estado de una tarea
+- Notificaciones automáticas al asignar tickets
+- Alertas al cambiar estado de un ticket
 - Badge contador en tiempo real (polling cada 30 s)
 
 ---
@@ -219,6 +219,8 @@ La aplicación queda disponible en `http://localhost:5173`
 
 ## 🔌 API REST — Endpoints Principales
 
+*(Nota arquitectónica: Por retrocompatibilidad segura en el backend los endpoints e identificadores conservan su ruta base de `/tareas` aunque a nivel UI el sistema los represente lógicamente como Tickets).*
+
 ### Autenticación
 ```
 POST   /api/auth/login                    → Login y obtención de token
@@ -231,22 +233,22 @@ POST   /api/usuarios                      → Crear usuario (ADMIN)
 PUT    /api/usuarios/{id}                 → Editar usuario (ADMIN)
 PATCH  /api/usuarios/{id}/estado          → Activar/desactivar (ADMIN)
 DELETE /api/usuarios/{id}                 → Eliminar (ADMIN)
-GET    /api/usuarios/rol/{rol}            → Por rol (ADMIN/ASIGNADOR)
+GET    /api/usuarios/rol/{rol}            → Por rol (ADMIN/SUPERVISOR)
 ```
 
-### Tareas
+### Gestión de Tickets
 ```
-GET    /api/tareas                        → Listar todas (ADMIN/ASIGNADOR)
-POST   /api/tareas                        → Crear tarea (ADMIN/ASIGNADOR)
-GET    /api/tareas/mis-tareas             → Tareas del técnico autenticado
-PUT    /api/tareas/{id}                   → Editar tarea
+GET    /api/tareas                        → Listar todos los tickets (ADMIN/SUPERVISOR)
+POST   /api/tareas                        → Crear ticket (ADMIN/SUPERVISOR)
+GET    /api/tareas/mis-tareas             → Tickets del técnico autenticado
+PUT    /api/tareas/{id}                   → Editar ticket
 PATCH  /api/tareas/{id}/estado            → Cambiar estado + comentario
-DELETE /api/tareas/{id}                   → Eliminar tarea
+DELETE /api/tareas/{id}                   → Eliminar ticket
 ```
 
 ### Dashboard
 ```
-GET    /api/dashboard                     → Métricas generales (ADMIN/ASIGNADOR)
+GET    /api/dashboard                     → Métricas generales (ADMIN/SUPERVISOR)
 GET    /api/dashboard/tecnico/{id}        → Métricas por técnico
 ```
 
@@ -265,7 +267,7 @@ PATCH  /api/notificaciones/{id}/leer            → Marcar como leída
 
 ---
 
-## 📦 Estados de una Tarea
+## 📦 Estados de un Ticket
 
 ```
 PENDIENTE ──► EN_PROCESO ──► FINALIZADA
@@ -275,10 +277,10 @@ PENDIENTE ──► EN_PROCESO ──► FINALIZADA
 
 | Estado | Descripción |
 |---|---|
-| `PENDIENTE` | Tarea creada, sin iniciar |
+| `PENDIENTE` | Ticket creado, sin iniciar |
 | `EN_PROCESO` | Técnico trabajando activamente |
-| `EN_ESPERA` | Bloqueada esperando algo externo |
-| `FINALIZADA` | Completada con reporte técnico |
+| `EN_ESPERA` | Bloqueado esperando algo externo |
+| `FINALIZADA` | Completado con reporte técnico |
 
 ---
 
@@ -293,7 +295,7 @@ POST /api/auth/login
 POST /api/usuarios
 {"nombre": "Carlos López", "email": "carlos@sistema.com", "password": "Tecnico123", "rol": "TECNICO"}
 
-# 3. Crear una tarea asignada a Carlos
+# 3. Crear un ticket asignado a Carlos
 POST /api/tareas
 {"titulo": "Instalar servidor web", "prioridad": "ALTA", "tecnicoId": "<id_carlos>", "fechaLimite": "2026-12-31T23:59:59"}
 
@@ -301,21 +303,21 @@ POST /api/tareas
 POST /api/auth/login
 {"email": "carlos@sistema.com", "password": "Tecnico123"}
 
-# 5. Carlos ve sus tareas
+# 5. Carlos ve sus tickets
 GET /api/tareas/mis-tareas
 
-# 6. Carlos inicia la tarea
+# 6. Carlos inicia la atención del ticket
 PATCH /api/tareas/{id}/estado
 {"nuevoEstado": "EN_PROCESO", "comentario": "Iniciando instalación del servidor"}
 
-# 7. Carlos finaliza la tarea
+# 7. Carlos finaliza el ticket
 PATCH /api/tareas/{id}/estado
 {"nuevoEstado": "FINALIZADA", "comentario": "Servidor instalado y configurado correctamente"}
 
 # 8. Ver el historial generado
 GET /api/historial/tarea/{id}
 
-# 9. Ver métricas actualizadas
+# 9. Ver métricas actualizadas en Dashboard
 GET /api/dashboard
 ```
 
@@ -357,7 +359,7 @@ GET /api/dashboard
 - ✅ Diseño e implementación de APIs REST con Spring Boot
 - ✅ Gestión de base de datos NoSQL (MongoDB Atlas)
 - ✅ Autenticación y seguridad con JWT + Spring Security
-- ✅ Desarrollo frontend con React y gestión de estado
+- ✅ Desarrollo frontend con React (Adaptado de Tareas a Tickets + Lucide UX)
 - ✅ Arquitectura cliente-servidor desacoplada
 - ✅ Control de acceso basado en roles (RBAC)
 - ✅ Patrones de diseño: Repository, DTO, Service Layer

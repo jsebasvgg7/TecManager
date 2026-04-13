@@ -181,7 +181,7 @@ html, body { height: 100%; overflow: hidden; }
   letter-spacing: 0.05em; text-transform: uppercase;
 }
 .badge-admin     { background: #ede4f5; color: #6b3fa0; }
-.badge-asignador { background: #daf0f5; color: #1a7a8a; }
+.badge-supervisor { background: #daf0f5; color: #1a7a8a; }
 .badge-tecnico   { background: #daf5e8; color: #1a7a4a; }
 
 .menu-toggle {
