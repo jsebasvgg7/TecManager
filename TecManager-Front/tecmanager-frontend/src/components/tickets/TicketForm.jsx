@@ -19,7 +19,6 @@ export default function TicketForm({ ticket, onGuardar, onCerrar }) {
     tecnicoId:           ticket?.tecnicoId || '',
     tecnicosIds:         ticket?.tecnicosIds || [],
     fechaLimite:         ticket?.fechaLimite ? new Date(ticket.fechaLimite).toISOString().slice(0, 16) : '',
-    tiempoEstimadoHoras: ticket?.tiempoEstimadoHoras || '',
     categoriaId:         ticket?.categoriaId || '',
     etiquetas:           ticket?.etiquetas || [],
   });
@@ -44,7 +43,7 @@ export default function TicketForm({ ticket, onGuardar, onCerrar }) {
 
   // Colaboradores — agregar/quitar
   const toggleColaborador = (id) => {
-    if (id === form.tecnicoId) return; // no puede ser responsable y colaborador
+    if (id === form.tecnicoId) return;
     setForm(prev => ({
       ...prev,
       tecnicosIds: prev.tecnicosIds.includes(id)
@@ -74,9 +73,6 @@ export default function TicketForm({ ticket, onGuardar, onCerrar }) {
         ...form,
         fechaLimite: form.fechaLimite
           ? new Date(form.fechaLimite).toISOString().replace('Z', '')
-          : null,
-        tiempoEstimadoHoras: form.tiempoEstimadoHoras
-          ? parseInt(form.tiempoEstimadoHoras)
           : null,
         tecnicoId:   form.tecnicoId   || null,
         categoriaId: form.categoriaId || null,
@@ -269,19 +265,6 @@ export default function TicketForm({ ticket, onGuardar, onCerrar }) {
               </div>
             </div>
           )}
-
-          {/* Tiempo estimado */}
-          <div className="form-grupo">
-            <label>
-              <Clock size={11} strokeWidth={2.5} style={{ marginRight: 5, verticalAlign: 'middle' }}/>
-              Tiempo estimado (horas)
-            </label>
-            <input
-              name="tiempoEstimadoHoras" type="number"
-              value={form.tiempoEstimadoHoras} onChange={handleChange}
-              placeholder="Ej: 4" min="1"
-            />
-          </div>
 
           {/* Etiquetas */}
           <div className="form-grupo">

@@ -1,5 +1,14 @@
 package com.demo.tecmanager.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.demo.tecmanager.document.Tarea;
 import com.demo.tecmanager.document.Usuario;
 import com.demo.tecmanager.dto.dashboard.DashboardResponse;
@@ -9,14 +18,6 @@ import com.demo.tecmanager.enums.Prioridad;
 import com.demo.tecmanager.enums.Rol;
 import com.demo.tecmanager.repository.TareaRepository;
 import com.demo.tecmanager.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class DashboardService {
@@ -44,9 +45,11 @@ public class DashboardService {
         long Vencidas = todasLasTareas.stream().filter(t -> t.getFechaLimite() != null && ahora.isAfter(t.getFechaLimite()) && t.getEstado() != EstadoTarea.FINALIZADA).count();
         dashboard.setTareasVencidas(Vencidas);
 
-        dashboard.setTareasAltaPrioridad(tareaRepository.countByEstado(EstadoTarea.PENDIENTE) > 0 ? todasLasTareas.stream().filter(t -> t.getPrioridad() == Prioridad.ALTA).count():0);
-        dashboard.setTareasMediaPrioridad(todasLasTareas.stream().filter(t -> t.getPrioridad() == Prioridad.MEDIA).count());
-        dashboard.setTareasBajaPrioridad(todasLasTareas.stream().filter(t -> t.getPrioridad() == Prioridad.BAJA).count());
+        List<Tarea> tareasActivas = todasLasTareas.stream().filter(t -> t.getEstado() != EstadoTarea.FINALIZADA).collect(Collectors.toList());
+
+        dashboard.setTareasAltaPrioridad(tareasActivas.stream().filter(t -> t.getPrioridad() == Prioridad.ALTA).count());
+        dashboard.setTareasMediaPrioridad(tareasActivas.stream().filter(t -> t.getPrioridad() == Prioridad.MEDIA).count());
+        dashboard.setTareasBajaPrioridad(tareasActivas.stream().filter(t -> t.getPrioridad() == Prioridad.BAJA).count());
 
         List<Tarea> finalizadas = todasLasTareas.stream().filter(t -> t.getEstado() == EstadoTarea.FINALIZADA).collect(Collectors.toList());
 
