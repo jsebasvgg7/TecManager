@@ -1,0 +1,96 @@
+/* BottomMobile.css
+   Solo visible en móvil (max-width: 768px)
+   Mismo estilo que el sistema: variables de navbar.css
+*/
+
+.bottom-mobile {
+  display: none; /* oculto en escritorio */
+}
+
+@media (max-width: 768px) {
+  .bottom-mobile {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+
+    background: var(--bg, #eeeae3);
+    border-top: 1px solid var(--border, #ddd9d0);
+
+    padding: 6px 4px;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+
+    align-items: center;
+    justify-content: space-around;
+    gap: 2px;
+  }
+
+  .bottom-mobile-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+
+    flex: 1;
+    min-width: 0;
+    padding: 6px 4px;
+    border-radius: 10px;
+
+    color: var(--text-soft, #9c9790);
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: 'Nunito Sans', sans-serif;
+
+    transition: background 0.14s, color 0.14s;
+  }
+
+  .bottom-mobile-link span {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .bottom-mobile-link:hover {
+    background: var(--border, #ddd9d0);
+    color: var(--text-dark, #1e1c1a);
+  }
+
+  /* NavLink activo — lo inyecta React Router con clase "active" */
+  .bottom-mobile-link.active {
+    background: var(--text-dark, #1e1c1a);
+    color: var(--surface, #f7f4ef);
+  }
+
+  /* Botón salir — rojo suave al hover */
+  .bottom-mobile-logout:hover {
+    background: rgba(200, 50, 50, 0.10);
+    color: #b83232;
+  }
+
+  /* Icono con badge de notificaciones encima */
+  .bottom-mobile-icon-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bottom-mobile-icon-wrap .bottom-mobile-badge {
+    position: absolute;
+    top: -4px;
+    right: -8px;
+  }
+
+  /* Ajuste: empujar main-contenido para que no quede bajo la barra */
+  /* Agrega esto en Navbar.jsx si tu main-contenido no tiene padding-bottom */
+}

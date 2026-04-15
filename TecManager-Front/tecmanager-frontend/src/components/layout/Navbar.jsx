@@ -6,6 +6,7 @@ import {
   Users, CheckSquare, LogOut, Menu, X, Tag,
 } from 'lucide-react';
 import NotificacionBadge from './NotificacionBadge';
+import BottomMobile from './BottomMobile.jsx';
 import TopBar from './Topbar';
 import '../../styles/navbar.css';
 
@@ -127,11 +128,6 @@ export default function Navbar() {
 
       </aside>
 
-      {/* ── MOBILE TOGGLE ── */}
-      <button className="menu-toggle" onClick={() => setMenuAbierto(!menuAbierto)}>
-        {menuAbierto ? <X size={17} /> : <Menu size={17} />}
-      </button>
-
       {/* ── MAIN COLUMN ── */}
       <div className="main-contenido-wrapper">
         <TopBar titulo={paginaActual} />
@@ -139,6 +135,7 @@ export default function Navbar() {
           <Outlet />
         </main>
       </div>
+      <BottomMobile />
 
     </div>
   );
