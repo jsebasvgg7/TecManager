@@ -4,6 +4,7 @@ import com.demo.tecmanager.dto.tarea.CambioEstadoRequest;
 import com.demo.tecmanager.dto.tarea.TareaRequest;
 import com.demo.tecmanager.dto.tarea.TareaResponse;
 import com.demo.tecmanager.service.TareaService;
+import com.demo.tecmanager.dto.tarea.TareaPageResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -113,4 +114,29 @@ public class TareaController {
         service.eliminar(id);
         return ResponseEntity.noContent().build();
     }
+
+    // ── GET /api/tareas/paginado ── (ADMIN + SUPERVISOR)
+    @GetMapping("/paginado")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR')")
+    public ResponseEntity<TareaPageResponse> listarPaginado(
+        @RequestParam(defaultValue = "0")  int pagina,
+        @RequestParam(defaultValue = "20") int tamanio,
+        @RequestParam(required = false)    String busqueda,
+        @RequestParam(required = false)    String estado,
+        @RequestParam(required = false)    String prioridad,
+        @RequestParam(required = false)    String categoriaId) {
+        return ResponseEntity.ok(service.listarPaginado(pagina, tamanio, busqueda, estado, prioridad, categoriaId));
+    }
+
+    // ── GET /api/tareas/mis-tareas/paginado ── (TECNICO)
+    @GetMapping("/mis-tareas/paginado")
+    @PreAuthorize("hasRole('TECNICO')")
+    public ResponseEntity<TareaPageResponse> misTareasPaginado(
+        @RequestParam(defaultValue = "0")  int pagina,
+        @RequestParam(defaultValue = "20") int tamanio,
+        @RequestParam(required = false)    String estado,
+        Authentication auth) {
+        return ResponseEntity.ok(service.listarPorTecnicoPaginado(auth.getName(), pagina, tamanio, estado));
+    }
+
 }

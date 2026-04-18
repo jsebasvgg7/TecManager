@@ -15,14 +15,24 @@ import com.demo.tecmanager.repository.CategoriaRepository;
 import com.demo.tecmanager.repository.ReporteRepository;
 import com.demo.tecmanager.repository.TareaRepository;
 import com.demo.tecmanager.repository.UsuarioRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import com.demo.tecmanager.dto.tarea.TareaPageResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class TareaService {
@@ -392,6 +402,147 @@ public class TareaService {
                     .collect(Collectors.toList());
             r.setTecnicosNombres(nombres);
         }
+
+        return r;
+    }
+
+    // ── Listar paginado para ADMIN/SUPERVISOR (optimizado) ──
+    public TareaPageResponse listarPaginado(int pagina, int tamanio,
+        String busqueda, String estado, String prioridad, String categoriaId) {
+
+        Pageable pageable = PageRequest.of(pagina, tamanio,Sort.by(Sort.Direction.DESC, "fechaCreacion"));
+
+        EstadoTarea estadoEnum   = null;
+        Prioridad   prioridadEnum = null;
+
+        try { 
+            if (estado != null && !estado.isBlank()) estadoEnum = EstadoTarea.valueOf(estado);} catch (Exception ignored) {}
+        try { 
+            if (prioridad != null && !prioridad.isBlank()) prioridadEnum = Prioridad.valueOf(prioridad); } catch (Exception ignored) {}
+
+        String busquedaFinal   = (busqueda    != null && !busqueda.isBlank())    ? busqueda    : "";
+        String categoriaFinal  = (categoriaId != null && !categoriaId.isBlank()) ? categoriaId : null;
+
+        Page<Tarea> page = tareaRepository.findWithFilters(busquedaFinal, estadoEnum, prioridadEnum, categoriaFinal, pageable);
+
+        List<TareaResponse> contenido = mapearConCache(page.getContent());
+
+        return new TareaPageResponse(contenido, page.getNumber(),page.getTotalPages(), page.getTotalElements(), page.hasNext());
+}
+
+    // ── Listar paginado para TECNICO (optimizado) ──
+    public TareaPageResponse listarPorTecnicoPaginado(
+        String email, int pagina, int tamanio, String estado) {
+
+        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Pageable pageable = PageRequest.of(pagina, tamanio,Sort.by(Sort.Direction.DESC, "fechaCreacion"));
+
+        Page<Tarea> page;
+        if (estado != null && !estado.isBlank()) {
+            try {
+                page = tareaRepository.findByTecnicoIdAndEstado(
+                    usuario.getId(), EstadoTarea.valueOf(estado), pageable);
+            } catch (Exception e) {
+                page = tareaRepository.findByTecnicoId(usuario.getId(), pageable);
+            }
+        } else {
+            page = tareaRepository.findByTecnicoId(usuario.getId(), pageable);
+        }
+
+        List<TareaResponse> contenido = mapearConCache(page.getContent());
+
+        return new TareaPageResponse(contenido, page.getNumber(),page.getTotalPages(), page.getTotalElements(), page.hasNext());
+    }
+
+    // ── Mapeo con cache — UNA sola consulta por lote ──
+    private List<TareaResponse> mapearConCache(List<Tarea> tareas) {
+    if (tareas.isEmpty()) return Collections.emptyList();
+
+    // 1. Recolectar todos los IDs únicos necesarios
+    Set<String> tecnicoIds = new HashSet<>();
+    Set<String> categoriaIds = new HashSet<>();
+
+    for (Tarea t : tareas) {
+        if (t.getTecnicoId() != null) tecnicoIds.add(t.getTecnicoId());
+        if (t.getCategoriaId() != null) categoriaIds.add(t.getCategoriaId());
+        if (t.getTecnicosIds() != null) tecnicoIds.addAll(t.getTecnicosIds());
+    }
+
+    // 2. UNA sola consulta para todos los usuarios necesarios
+    Map<String, String> nombresPorId = usuarioRepository
+            .findAllById(tecnicoIds)
+            .stream()
+            .collect(Collectors.toMap(Usuario::getId, Usuario::getNombre));
+
+    // 3. UNA sola consulta para todas las categorías necesarias
+    Map<String, Categoria> categoriasPorId = categoriaRepository
+            .findAllById(categoriaIds)
+            .stream()
+            .collect(Collectors.toMap(Categoria::getId, c -> c));
+
+    // 4. Mapear sin tocar la base de datos
+    return tareas.stream()
+            .map(t -> toResponseConCache(t, nombresPorId, categoriasPorId))
+            .collect(Collectors.toList());
+}
+
+    // ── toResponse usando los mapas precargados ──
+    private TareaResponse toResponseConCache(
+        Tarea tarea,
+        Map<String, String> nombresPorId,
+        Map<String, Categoria> categoriasPorId) {
+
+            TareaResponse r = new TareaResponse();
+
+        r.setId(tarea.getId());
+        r.setTitulo(tarea.getTitulo());
+        r.setDescripcion(tarea.getDescripcion());
+        r.setPrioridad(tarea.getPrioridad());
+        r.setEstado(tarea.getEstado());
+        r.setTecnicoId(tarea.getTecnicoId());
+        r.setCreadaPor(tarea.getCreadaPor());
+        r.setFechaCreacion(tarea.getFechaCreacion());
+        r.setFechaLimite(tarea.getFechaLimite());
+        r.setTiempoEstimadoHoras(tarea.getTiempoEstimadoHoras());
+        r.setTiempoRealHoras(tarea.getTiempoRealHoras());
+        r.setTecnicosIds(tarea.getTecnicosIds());
+        r.setPorcentajeAvance(tarea.getPorcentajeAvance());
+        r.setFechaLimiteSla(tarea.getFechaLimiteSla());
+        r.setEtiquetas(tarea.getEtiquetas());
+        r.setEvidenciaUrl(tarea.getEvidenciaUrl());
+
+        // Nombre técnico responsable — del mapa, sin consulta
+        if (tarea.getTecnicoId() != null)
+            r.setTecnicoNombre(nombresPorId.getOrDefault(tarea.getTecnicoId(), ""));
+
+        // Nombres colaboradores — del mapa, sin consulta
+        if (tarea.getTecnicosIds() != null && !tarea.getTecnicosIds().isEmpty()) {
+            List<String> nombres = tarea.getTecnicosIds().stream()
+                .map(id -> nombresPorId.getOrDefault(id, "Desconocido"))
+                .collect(Collectors.toList());
+            r.setTecnicosNombres(nombres);
+        }
+
+        // Categoría — del mapa, sin consulta
+        if (tarea.getCategoriaId() != null) {
+            Categoria cat = categoriasPorId.get(tarea.getCategoriaId());
+            if (cat != null) {
+                r.setCategoriaNombre(cat.getNombre());
+                r.setCategoriaColor(cat.getColor());
+                r.setCategoriaIcono(cat.getIcono());
+            }
+        }
+
+        // Vencida
+        r.setVencida(tarea.getFechaLimite() != null
+            && LocalDateTime.now().isAfter(tarea.getFechaLimite())
+            && tarea.getEstado() != EstadoTarea.FINALIZADA);
+
+        // SLA vencido
+        r.setSlaVencido(tarea.getFechaLimiteSla() != null
+            && LocalDateTime.now().isAfter(tarea.getFechaLimiteSla())
+            && tarea.getEstado() != EstadoTarea.FINALIZADA);
 
         return r;
     }

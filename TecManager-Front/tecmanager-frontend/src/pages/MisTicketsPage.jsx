@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../api/axiosConfig';
 import TicketCard from '../components/tickets/TicketCard';
 import CambioEstadoModal from '../components/tickets/CambioEstadoModal';
@@ -19,14 +19,35 @@ export default function MisTicketsPage() {
   const [exito, setExito]             = useState('');
   const [ticketEstado, setTicketEstado] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState('TODOS');
+  const [pagina,      setPagina]      = useState(0);
+  const [hayMas,      setHayMas]      = useState(true);
+  const [cargandoMas, setCargandoMas] = useState(false);
+  const centinelaRef = useRef(null);
+  const observerRef  = useRef(null);
 
   useEffect(() => { cargarMisTickets(); }, []);
 
-  const cargarMisTickets = async () => {
-    try { setCargando(true); const r = await api.get('/tareas/mis-tareas'); setTickets(r.data); }
-    catch { setError('Error al cargar tus tickets'); }
-    finally { setCargando(false); }
-  };
+  const cargarMisTickets = useCallback(async (paginaNum, reset = false) => {
+    if (reset) setCargando(true);
+    else setCargandoMas(true);
+
+    try {
+      const params = new URLSearchParams({ pagina: paginaNum, tamanio: 20 });
+      if (filtroEstado) params.append('estado', filtroEstado);
+
+      const r = await api.get(`/tareas/mis-tareas/paginado?${params}`);
+      const { contenido, hayMas: mas } = r.data;
+
+      setTickets(prev => reset ? contenido : [...prev, ...contenido]);
+      setHayMas(mas);
+      setPagina(paginaNum + 1);
+    } catch {
+      setError('Error al cargar tus tickets');
+    } finally {
+      setCargando(false);
+      setCargandoMas(false);
+    }
+  }, [filtroEstado]);
 
   const handleCambiarEstado = async (datos) => {
     try {
@@ -39,7 +60,28 @@ export default function MisTicketsPage() {
 
   const ticketsFiltrados = tickets.filter(t => filtroEstado === 'TODOS' || t.estado === filtroEstado);
 
+  useEffect(() => {
+    setTickets([]);
+    setPagina(0);
+    setHayMas(true);
+    cargarMisTickets(0, true);
+  }, [filtroEstado]);
+
   const count = (estado) => tickets.filter(t => t.estado === estado).length;
+
+  useEffect(() => {
+    if (observerRef.current) observerRef.current.disconnect();
+    observerRef.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hayMas && !cargandoMas && !cargando) {
+        cargarMisTickets(pagina);
+      }
+    },
+    { threshold: 0.1 }
+  );
+  
+  if (centinelaRef.current) observerRef.current.observe(centinelaRef.current);
+     return () => observerRef.current?.disconnect();
+  }, [hayMas, cargandoMas, cargando, pagina, cargarMisTickets]);
 
   return (
     <div className="contenedor">
@@ -84,6 +126,15 @@ export default function MisTicketsPage() {
               soloLectura={true}
             />
           ))}
+
+          <div ref={centinelaRef} style={{ height: 40, marginTop: 16 }}>
+            {cargandoMas && (
+          <div className="cargando" style={{ padding: '12px 0' }}>
+            <RefreshCw size={16} className="spin" /> Cargando más...
+          </div>
+            )}
+          </div>
+
         </div>
       )}
 
@@ -92,5 +143,8 @@ export default function MisTicketsPage() {
           onCerrar={() => setTicketEstado(null)} />
       )}
     </div>
+
+      
+
   );
 }
