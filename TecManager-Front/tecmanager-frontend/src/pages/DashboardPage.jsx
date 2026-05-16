@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import GraficaEstados from '../components/dashboard/GraficaEstados';
@@ -11,28 +12,30 @@ import {
   BarChart2, PieChart, LayoutDashboard, ListChecks,
   UserCheck, Bell, Search, Filter, Plus,
   Calendar, Tag, ChevronRight, Star, Award,
-  ArrowRight, CheckCheck, CircleDot, Inbox,
+  ArrowRight, CheckCheck, CircleDot, Inbox, X,
 } from 'lucide-react';
 import '../styles/dashboard.css';
 
+const POWERBI_URL =
+  'https://app.powerbi.com/view?r=eyJrIjoiNDg2MmU4MTctYjk0Yi00MDYyLWE5ZmUtZDFkOGE0NjIxMTc3IiwidCI6IjlkMTJiZjNmLWU0ZjYtNDdhYi05MTJmLTFhMmYwZmM0OGFhNCIsImMiOjR9'
 const STATS = [
-  { key: 'totalTareas',       label: 'Total de tickets', icon: ClipboardList, accent: '#5a7de8', bg: '#eef1fc', trend: null },
-  { key: 'tareasPendientes',  label: 'Pendientes',      icon: Clock,         accent: '#d4a428', bg: '#fdf5e0', trend: 'neutral' },
-  { key: 'tareasFinalizadas', label: 'Finalizadas',     icon: CheckCircle2,  accent: '#2eaa68', bg: '#e4f5ed', trend: 'up' },
-  { key: 'tareasVencidas',    label: 'Vencidas',        icon: AlertTriangle, accent: '#d95f50', bg: '#faeceb', trend: 'down' },
+  { key: 'totalTareas', label: 'Total de tickets', icon: ClipboardList, accent: '#5a7de8', bg: '#eef1fc', trend: null },
+  { key: 'tareasPendientes', label: 'Pendientes', icon: Clock, accent: '#d4a428', bg: '#fdf5e0', trend: 'neutral' },
+  { key: 'tareasFinalizadas', label: 'Finalizadas', icon: CheckCircle2, accent: '#2eaa68', bg: '#e4f5ed', trend: 'up' },
+  { key: 'tareasVencidas', label: 'Vencidas', icon: AlertTriangle, accent: '#d95f50', bg: '#faeceb', trend: 'down' },
 ];
 
 const TREND_ICON = {
-  up:      { icon: ArrowUpRight,   color: '#2eaa68', bg: '#e4f5ed' },
-  down:    { icon: ArrowDownRight, color: '#d95f50', bg: '#faeceb' },
-  neutral: { icon: Minus,          color: '#9c9790', bg: '#f0ece6' },
+  up: { icon: ArrowUpRight, color: '#2eaa68', bg: '#e4f5ed' },
+  down: { icon: ArrowDownRight, color: '#d95f50', bg: '#faeceb' },
+  neutral: { icon: Minus, color: '#9c9790', bg: '#f0ece6' },
 };
 
 const TABS = [
-  { id: 'general',   label: 'Vista General',      icon: LayoutDashboard },
-  { id: 'tickets',   label: 'Gestión de Tickets', icon: ListChecks      },
-  { id: 'tecnicos',  label: 'Técnicos',           icon: UserCheck       },
-  { id: 'actividad', label: 'Actividad',          icon: Bell            },
+  { id: 'general', label: 'Vista General', icon: LayoutDashboard },
+  { id: 'tickets', label: 'Gestión de Tickets', icon: ListChecks },
+  { id: 'tecnicos', label: 'Técnicos', icon: UserCheck },
+  { id: 'actividad', label: 'Actividad', icon: Bell },
 ];
 
 const ahora = new Intl.DateTimeFormat('es-CO', {
@@ -40,14 +43,251 @@ const ahora = new Intl.DateTimeFormat('es-CO', {
   hour: '2-digit', minute: '2-digit',
 }).format(new Date());
 
+/* ─────────────────────────────────────────────────────────────
+   MODAL POWER BI — montado en document.body vía Portal
+   para evitar cualquier conflicto con scroll o z-index
+───────────────────────────────────────────────────────────── */
+function PowerBIModal({ onCerrar }) {
+  const [cargando, setCargando] = useState(true);
+
+  /* Bloquear scroll del body mientras el modal está abierto */
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
+  /* Cerrar con Escape */
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onCerrar(); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onCerrar]);
+
+  const modal = (
+    <>
+      <style>{`
+        @keyframes pbiOverlayIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes pbiPanelIn {
+          from { opacity: 0; transform: translateY(18px) scale(0.98); }
+          to   { opacity: 1; transform: translateY(0)   scale(1);    }
+        }
+        @keyframes pbiLoad {
+          0%   { transform: translateX(-100%); }
+          100% { transform: translateX(260%);  }
+        }
+        @keyframes pbiSpin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+      `}</style>
+
+      {/* Overlay flex-centrador — clic en el fondo cierra */}
+      <div
+        onClick={onCerrar}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 9998,
+          background: 'rgba(20,18,16,0.72)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+          animation: 'pbiOverlayIn 0.22s ease both',
+        }}
+      >
+        {/* Panel — stopPropagation evita que clic adentro cierre el modal */}
+        <div
+          onClick={e => e.stopPropagation()}
+          style={{
+            width: '100%',
+            maxWidth: 1200,
+            height: '100%',
+            maxHeight: 860,
+            display: 'flex',
+            flexDirection: 'column',
+            background: '#ffffff',
+            borderRadius: 20,
+            overflow: 'hidden',
+            boxShadow: '0 40px 100px rgba(20,18,16,0.40), 0 0 0 1px rgba(238,229,218,0.25)',
+            animation: 'pbiPanelIn 0.28s cubic-bezier(0.22,1,0.36,1) both',
+            flexShrink: 0,
+          }}
+        >
+          {/* ── Header ── */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '14px 20px',
+            borderBottom: '1px solid #ede9e2',
+            flexShrink: 0,
+            background: '#faf8f5',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{
+                width: 38, height: 38,
+                borderRadius: 11,
+                background: '#262424',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <BarChart2 size={17} strokeWidth={2} style={{ color: '#EEE5DA' }} />
+              </div>
+              <div>
+                <div style={{
+                  fontFamily: 'Nunito, sans-serif',
+                  fontWeight: 900, fontSize: 15,
+                  color: '#262424', letterSpacing: '-0.02em',
+                }}>
+                  Análisis General
+                </div>
+                <div style={{
+                  fontFamily: 'Nunito Sans, sans-serif',
+                  fontSize: 11, color: '#9c9790', marginTop: 1,
+                }}>
+                  Tablero Power BI · datos en tiempo real
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {cargando && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  fontFamily: 'Nunito Sans, sans-serif',
+                  fontSize: 12, color: '#9c9790',
+                }}>
+                  <RefreshCw
+                    size={12}
+                    style={{ animation: 'pbiSpin 0.9s linear infinite' }}
+                  />
+                  Cargando tablero...
+                </div>
+              )}
+              <button
+                onClick={onCerrar}
+                title="Cerrar (Esc)"
+                style={{
+                  width: 34, height: 34,
+                  background: '#f0ece7',
+                  border: '1px solid #e0dbd4',
+                  borderRadius: 9,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#6b6868',
+                  flexShrink: 0,
+                  transition: 'background 0.15s, color 0.15s, border-color 0.15s',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = '#262424';
+                  e.currentTarget.style.color = '#EEE5DA';
+                  e.currentTarget.style.borderColor = '#262424';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = '#f0ece7';
+                  e.currentTarget.style.color = '#6b6868';
+                  e.currentTarget.style.borderColor = '#e0dbd4';
+                }}
+              >
+                <X size={15} strokeWidth={2.5} />
+              </button>
+            </div>
+          </div>
+
+          {/* ── Contenido iframe ── */}
+          <div style={{ flex: 1, position: 'relative', background: '#f7f4f0', minHeight: 0 }}>
+
+            {/* Pantalla de carga */}
+            {cargando && (
+              <div style={{
+                position: 'absolute', inset: 0,
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                gap: 16, background: '#f7f4f0', zIndex: 1,
+              }}>
+                <div style={{
+                  width: 52, height: 52, borderRadius: 16,
+                  background: '#262424',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <BarChart2 size={24} strokeWidth={1.8} style={{ color: '#EEE5DA' }} />
+                </div>
+                <div style={{ textAlign: 'center', lineHeight: 1 }}>
+                  <div style={{
+                    fontFamily: 'Nunito, sans-serif',
+                    fontWeight: 800, fontSize: 14,
+                    color: '#262424', marginBottom: 6,
+                  }}>
+                    Cargando tablero
+                  </div>
+                  <div style={{
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    fontSize: 12, color: '#9c9790',
+                  }}>
+                    Conectando con Power BI...
+                  </div>
+                </div>
+                {/* Barra de progreso indeterminada */}
+                <div style={{
+                  width: 180, height: 3,
+                  background: '#e8e4dc',
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: 0, left: 0,
+                    width: '40%', height: '100%',
+                    background: '#262424',
+                    borderRadius: 4,
+                    animation: 'pbiLoad 1.4s ease-in-out infinite',
+                  }} />
+                </div>
+              </div>
+            )}
+
+            <iframe
+              title="TecManager — Análisis General Power BI"
+              src={POWERBI_URL}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                border: 'none',
+                display: 'block',
+              }}
+              allowFullScreen
+              onLoad={() => setCargando(false)}
+            />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+
+  /* Renderizar fuera del árbol DOM del dashboard */
+  return createPortal(modal, document.body);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   VISTA GENERAL
+───────────────────────────────────────────────────────────── */
 function VistaGeneral({ datos, navigate }) {
   if (!datos) return null;
-  const total     = datos.totalTareas || 1;
+  const total = datos.totalTareas || 1;
   const globalPct = Math.round((datos.tareasFinalizadas / total) * 100);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
       <div className="dash-bottom-row">
 
         <div className="dash-container dash-bottom-paneles">
@@ -246,37 +486,40 @@ function VistaGeneral({ datos, navigate }) {
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+   GESTIÓN DE TICKETS
+───────────────────────────────────────────────────────────── */
 function GestionTickets({ navigate }) {
-  const [tareas, setTareas]           = useState([]);
-  const [cargando, setCargando]       = useState(true);
-  const [busqueda, setBusqueda]       = useState('');
+  const [tareas, setTareas] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('TODOS');
   const [filtroPrioridad, setFiltroPrioridad] = useState('TODOS');
 
   useEffect(() => {
     api.get('/tareas')
       .then(r => setTareas(r.data))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setCargando(false));
   }, []);
 
   const filtradas = tareas.filter(t =>
-    (filtroEstado    === 'TODOS' || t.estado    === filtroEstado) &&
+    (filtroEstado === 'TODOS' || t.estado === filtroEstado) &&
     (filtroPrioridad === 'TODOS' || t.prioridad === filtroPrioridad) &&
     t.titulo.toLowerCase().includes(busqueda.toLowerCase())
   );
 
   const ESTADO_STYLE = {
-    PENDIENTE:  { bg: '#fef3c7', color: '#92400e', label: 'Pendiente'  },
+    PENDIENTE: { bg: '#fef3c7', color: '#92400e', label: 'Pendiente' },
     EN_PROCESO: { bg: '#dbeafe', color: '#1e40af', label: 'En proceso' },
     FINALIZADA: { bg: '#dcfce7', color: '#166534', label: 'Finalizada' },
-    EN_ESPERA:  { bg: '#f3e8ff', color: '#6b21a8', label: 'En espera'  },
+    EN_ESPERA: { bg: '#f3e8ff', color: '#6b21a8', label: 'En espera' },
   };
 
   const PRIORIDAD_STYLE = {
-    ALTA:  { bg: '#fee2e2', color: '#991b1b', label: 'Alta'  },
+    ALTA: { bg: '#fee2e2', color: '#991b1b', label: 'Alta' },
     MEDIA: { bg: '#fef3c7', color: '#92400e', label: 'Media' },
-    BAJA:  { bg: '#dcfce7', color: '#166534', label: 'Baja'  },
+    BAJA: { bg: '#dcfce7', color: '#166534', label: 'Baja' },
   };
 
   return (
@@ -400,6 +643,9 @@ function GestionTickets({ navigate }) {
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+   SECCIÓN TÉCNICOS
+───────────────────────────────────────────────────────────── */
 function SeccionTecnicos({ datos }) {
   const tecnicos = datos?.tecnicosConMasTareas || [];
   const eficientes = datos?.tecnicosMasEficientes || [];
@@ -413,22 +659,19 @@ function SeccionTecnicos({ datos }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-      {/* Resumen */}
       <div className="dash-container">
         <div className="dash-container-header">
           <UserCheck size={12} strokeWidth={2.5} />
           <span>Resumen de técnicos</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-          <StatBox label="Técnicos activos"    value={tecnicos.length}                               color="#5a7de8" bg="#eef1fc" />
-          <StatBox label="Tickets completados" value={datos?.tareasFinalizadas ?? 0}                  color="#2eaa68" bg="#e4f5ed" />
+          <StatBox label="Técnicos activos" value={tecnicos.length} color="#5a7de8" bg="#eef1fc" />
+          <StatBox label="Tickets completados" value={datos?.tareasFinalizadas ?? 0} color="#2eaa68" bg="#e4f5ed" />
           <StatBox label="Tiempo promedio (h)" value={`${datos?.tiempoPromedioResolucionHoras ?? 0}h`} color="#d4a428" bg="#fdf5e0" />
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-
         <div className="dash-container">
           <div className="dash-container-header">
             <Award size={12} strokeWidth={2.5} />
@@ -493,18 +736,20 @@ function SeccionTecnicos({ datos }) {
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+   SECCIÓN ACTIVIDAD
+───────────────────────────────────────────────────────────── */
 function SeccionActividad({ datos }) {
   const eventos = [
     { tipo: 'completada', texto: `${datos?.tareasFinalizadas ?? 0} tickets completados`, sub: 'Estado: Finalizado', color: '#2eaa68', bg: '#e4f5ed', icon: CheckCheck },
-    { tipo: 'pendiente',  texto: `${datos?.tareasPendientes ?? 0} tickets sin asignar`,  sub: 'Estado: Pendiente',  color: '#d4a428', bg: '#fdf5e0', icon: Inbox },
-    { tipo: 'proceso',    texto: `${datos?.tareasEnProceso ?? 0} en ejecución activa`,   sub: 'Estado: En proceso',  color: '#5a7de8', bg: '#eef1fc', icon: CircleDot },
-    { tipo: 'espera',     texto: `${datos?.tareasEnEspera ?? 0} en espera`,              sub: 'Estado: En espera',  color: '#a855f7', bg: '#f3e8ff', icon: Timer },
-    { tipo: 'vencida',    texto: `${datos?.tareasVencidas ?? 0} tickets fuera de plazo`, sub: 'Estado: Vencido',    color: '#d95f50', bg: '#faeceb', icon: AlertTriangle },
+    { tipo: 'pendiente', texto: `${datos?.tareasPendientes ?? 0} tickets sin asignar`, sub: 'Estado: Pendiente', color: '#d4a428', bg: '#fdf5e0', icon: Inbox },
+    { tipo: 'proceso', texto: `${datos?.tareasEnProceso ?? 0} en ejecución activa`, sub: 'Estado: En proceso', color: '#5a7de8', bg: '#eef1fc', icon: CircleDot },
+    { tipo: 'espera', texto: `${datos?.tareasEnEspera ?? 0} en espera`, sub: 'Estado: En espera', color: '#a855f7', bg: '#f3e8ff', icon: Timer },
+    { tipo: 'vencida', texto: `${datos?.tareasVencidas ?? 0} tickets fuera de plazo`, sub: 'Estado: Vencido', color: '#d95f50', bg: '#faeceb', icon: AlertTriangle },
   ];
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-
       <div className="dash-container">
         <div className="dash-container-header">
           <Activity size={12} strokeWidth={2.5} />
@@ -516,7 +761,7 @@ function SeccionActividad({ datos }) {
             const Icon = ev.icon;
             return (
               <div key={i} style={{ display: 'flex', gap: 14, padding: '10px 0', position: 'relative' }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: ev.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, position: 'relative', zIndex: 1, border: `2px solid #f7f4f0` }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: ev.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, position: 'relative', zIndex: 1, border: '2px solid #f7f4f0' }}>
                   <Icon size={15} strokeWidth={2} style={{ color: ev.color }} />
                 </div>
                 <div style={{ flex: 1, background: '#fff', borderRadius: 10, padding: '10px 14px', boxShadow: '0 1px 4px rgba(38,36,36,0.06)', border: '1px solid rgba(238,229,218,0.80)', marginBottom: 4 }}>
@@ -530,7 +775,6 @@ function SeccionActividad({ datos }) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
         <div className="dash-container">
           <div className="dash-container-header">
             <Bell size={12} strokeWidth={2.5} />
@@ -579,7 +823,7 @@ function SeccionActividad({ datos }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {[
               { label: 'Tasa de finalización a tiempo', value: `${datos?.porcentajeFinalizadasATiempo ?? 0}%`, color: '#2eaa68', bg: '#e4f5ed', max: 100, current: datos?.porcentajeFinalizadasATiempo ?? 0 },
-              { label: 'Tiempo promedio resolución',     value: `${datos?.tiempoPromedioResolucionHoras ?? 0}h`, color: '#5a7de8', bg: '#eef1fc', max: 72,  current: Math.min(datos?.tiempoPromedioResolucionHoras ?? 0, 72) },
+              { label: 'Tiempo promedio resolución', value: `${datos?.tiempoPromedioResolucionHoras ?? 0}h`, color: '#5a7de8', bg: '#eef1fc', max: 72, current: Math.min(datos?.tiempoPromedioResolucionHoras ?? 0, 72) },
             ].map(m => (
               <div key={m.label}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -598,12 +842,16 @@ function SeccionActividad({ datos }) {
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+   DASHBOARD PAGE — COMPONENTE PRINCIPAL
+───────────────────────────────────────────────────────────── */
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const [datos, setDatos]         = useState(null);
-  const [cargando, setCargando]   = useState(true);
-  const [error, setError]         = useState('');
+  const [datos, setDatos] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
   const [tabActivo, setTabActivo] = useState('general');
+  const [mostrarPowerBI, setMostrarPowerBI] = useState(false);
 
   useEffect(() => { cargarDashboard(); }, []);
 
@@ -632,6 +880,7 @@ export default function DashboardPage() {
   return (
     <div className="dash-root">
 
+      {/* ── HEADER ── */}
       <div className="dash-header">
         <div className="dash-header-left">
           <span className="dash-eyebrow">Panel operativo</span>
@@ -642,6 +891,24 @@ export default function DashboardPage() {
             <Clock size={11} strokeWidth={2} />
             {ahora}
           </span>
+
+          {/* Botón Análisis General → abre modal Power BI */}
+          <button
+            className="dash-refresh-btn"
+            onClick={() => setMostrarPowerBI(true)}
+            style={{
+              background: '#262424',
+              color: '#EEE5DA',
+              borderColor: '#262424',
+              gap: 7,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#3a3737'; e.currentTarget.style.borderColor = '#3a3737'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#262424'; e.currentTarget.style.borderColor = '#262424'; }}
+          >
+            <BarChart2 size={12} strokeWidth={2.5} />
+            Análisis General
+          </button>
+
           <button className="dash-refresh-btn" onClick={cargarDashboard}>
             <RefreshCw size={12} strokeWidth={2.5} />
             Sincronizar
@@ -649,6 +916,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* ── STATS ── */}
       <div className="dash-container">
         <div className="dash-container-header">
           <ClipboardList size={12} strokeWidth={2.5} />
@@ -658,7 +926,7 @@ export default function DashboardPage() {
           {STATS.map(({ key, label, icon: Icon, accent, bg, trend }, i) => {
             const val = datos?.[key] ?? 0;
             const pct = key === 'totalTareas' ? 100 : Math.round((val / total) * 100);
-            const T   = trend ? TREND_ICON[trend] : null;
+            const T = trend ? TREND_ICON[trend] : null;
             return (
               <div className="stat-card" key={key} style={{ animationDelay: `${i * 60}ms` }}>
                 <div className="stat-card-top">
@@ -683,6 +951,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* ── TABS ── */}
       <div style={{ display: 'flex', gap: 6, background: '#f0ece7', padding: 5, borderRadius: 14, width: 'fit-content' }}>
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
@@ -705,12 +974,18 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* ── CONTENIDO DE TAB ── */}
       <div style={{ animation: 'dashIn 0.3s ease both' }}>
-        {tabActivo === 'general'   && <VistaGeneral    datos={datos} navigate={navigate} />}
-        {tabActivo === 'tickets'   && <GestionTickets  navigate={navigate} />}
-        {tabActivo === 'tecnicos'  && <SeccionTecnicos datos={datos} />}
+        {tabActivo === 'general' && <VistaGeneral datos={datos} navigate={navigate} />}
+        {tabActivo === 'tickets' && <GestionTickets navigate={navigate} />}
+        {tabActivo === 'tecnicos' && <SeccionTecnicos datos={datos} />}
         {tabActivo === 'actividad' && <SeccionActividad datos={datos} />}
       </div>
+
+      {/* ── MODAL POWER BI ── */}
+      {mostrarPowerBI && (
+        <PowerBIModal onCerrar={() => setMostrarPowerBI(false)} />
+      )}
 
     </div>
   );
