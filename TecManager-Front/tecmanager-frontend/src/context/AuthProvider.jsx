@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AuthContext } from './AuthContext';
+import { setCookie, getCookie, deleteCookie, tokenCookieExpirado } from '../utils/cookieUtils';
 
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
@@ -7,47 +8,64 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const cargarSesion = () => {
-  try {
-    const token = localStorage.getItem('token');
-    const usuarioGuardado = localStorage.getItem('usuario');
+      try {
+        const token        = getCookie('token');
+        const usuarioCookie = getCookie('usuario');
 
-    if (token && usuarioGuardado) {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const expirado = payload.exp * 1000 < Date.now();
-
-      if (expirado) {
-        localStorage.clear();
-        return; 
+        if (token && usuarioCookie) {
+          // Verificar que el token no esté expirado
+          if (tokenCookieExpirado()) {
+            deleteCookie('token');
+            deleteCookie('usuario');
+            setCargando(false);
+            return;
+          }
+          setUsuario(JSON.parse(usuarioCookie));
+        }
+      } catch {
+        deleteCookie('token');
+        deleteCookie('usuario');
+      } finally {
+        setCargando(false);
       }
+    };
 
-      setUsuario(JSON.parse(usuarioGuardado));
-    }
-  } catch {
-    localStorage.clear();
-  } finally {
-    setCargando(false);
-  }
-};
     cargarSesion();
   }, []);
 
   const login = (datos) => {
-    localStorage.setItem('token', datos.token);
-    localStorage.setItem('usuario', JSON.stringify({
-      id: datos.id, nombre: datos.nombre,
-      email: datos.email, rol: datos.rol,
-    }));
-    setUsuario({ id: datos.id, nombre: datos.nombre, email: datos.email, rol: datos.rol });
+    // Guardar en cookies con 1 día de expiración
+    // (ajusta el número de días según la expiración de tu JWT)
+    setCookie('token',   datos.token, 1);
+    setCookie('usuario', JSON.stringify({
+      id:     datos.id,
+      nombre: datos.nombre,
+      email:  datos.email,
+      rol:    datos.rol,
+    }), 1);
+
+    setUsuario({
+      id:     datos.id,
+      nombre: datos.nombre,
+      email:  datos.email,
+      rol:    datos.rol,
+    });
   };
 
-  const logout = () => { localStorage.clear(); setUsuario(null); };
-  const esAdmin = () => usuario?.rol === 'ADMIN';
-  const esSupervisor = () => usuario?.rol === 'SUPERVISOR';
-  const esTecnico = () => usuario?.rol === 'TECNICO';
+  const logout = () => {
+    deleteCookie('token');
+    deleteCookie('usuario');
+    setUsuario(null);
+  };
+
+  const esAdmin     = () => usuario?.rol === 'ADMIN';
+  const esAsignador = () => usuario?.rol === 'ASIGNADOR';
+  const esTecnico   = () => usuario?.rol === 'TECNICO';
 
   return (
     <AuthContext.Provider value={{
-      usuario, cargando, login, logout, esAdmin, esSupervisor, esTecnico
+      usuario, cargando, login, logout,
+      esAdmin, esAsignador, esTecnico,
     }}>
       {children}
     </AuthContext.Provider>
