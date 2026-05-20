@@ -58,14 +58,14 @@ export function AuthProvider({ children }) {
     setUsuario(null);
   };
 
-  const esAdmin     = () => usuario?.rol === 'ADMIN';
-  const esAsignador = () => usuario?.rol === 'ASIGNADOR';
-  const esTecnico   = () => usuario?.rol === 'TECNICO';
+  const esAdmin      = () => usuario?.rol === 'ADMIN';
+  const esSupervisor = () => usuario?.rol === 'SUPERVISOR';
+  const esTecnico    = () => usuario?.rol === 'TECNICO';
 
   return (
     <AuthContext.Provider value={{
       usuario, cargando, login, logout,
-      esAdmin, esAsignador, esTecnico,
+      esAdmin, esSupervisor, esTecnico,
     }}>
       {children}
     </AuthContext.Provider>

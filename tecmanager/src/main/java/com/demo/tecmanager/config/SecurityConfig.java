@@ -63,7 +63,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,    "/api/tareas/mis-tareas").hasRole("TECNICO")
                 .requestMatchers(HttpMethod.POST,   "/api/tareas").hasAnyRole("ADMIN", "SUPERVISOR")
                 .requestMatchers(HttpMethod.PUT,    "/api/tareas/**").hasAnyRole("ADMIN", "SUPERVISOR")
-                .requestMatchers(HttpMethod.DELETE, "/api/tareas/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/tareas/**").hasAnyRole("ADMIN", "SUPERVISOR")
                 .requestMatchers(HttpMethod.PATCH,  "/api/tareas/**").authenticated()
                 .requestMatchers(HttpMethod.GET,    "/api/tareas/**").authenticated()
 

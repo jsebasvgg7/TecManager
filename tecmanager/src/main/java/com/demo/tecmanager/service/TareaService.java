@@ -455,6 +455,29 @@ public class TareaService {
         return new TareaPageResponse(contenido, page.getNumber(),page.getTotalPages(), page.getTotalElements(), page.hasNext());
     }
 
+    // ── Conteo de tareas para TECNICO ──
+    public Map<String, Long> obtenerConteoPorTecnico(String email) {
+        String tecnicoId = usuarioRepository.findByEmail(email)
+                .map(Usuario::getId)
+                .orElse(email);
+
+        List<Tarea> comoResponsable = tareaRepository.findByTecnicoId(tecnicoId);
+        List<Tarea> comoColaborador = tareaRepository.findByTecnicosIdsContaining(tecnicoId);
+
+        List<Tarea> todas = java.util.stream.Stream
+                .concat(comoResponsable.stream(), comoColaborador.stream())
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<String, Long> conteo = new HashMap<>();
+        conteo.put("TODOS", (long) todas.size());
+        conteo.put("PENDIENTE", todas.stream().filter(t -> t.getEstado() == EstadoTarea.PENDIENTE).count());
+        conteo.put("EN_PROCESO", todas.stream().filter(t -> t.getEstado() == EstadoTarea.EN_PROCESO).count());
+        conteo.put("FINALIZADA", todas.stream().filter(t -> t.getEstado() == EstadoTarea.FINALIZADA).count());
+
+        return conteo;
+    }
+
     // ── Mapeo con cache — UNA sola consulta por lote ──
     private List<TareaResponse> mapearConCache(List<Tarea> tareas) {
     if (tareas.isEmpty()) return Collections.emptyList();

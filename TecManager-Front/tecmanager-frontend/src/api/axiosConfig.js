@@ -8,10 +8,13 @@ const api = axios.create({
   },
 });
 
-// ── Request: lee el token de la cookie ──
 api.interceptors.request.use(
   (config) => {
-    // Verificar expiración antes de cada petición
+    // ✅ Rutas públicas — no verificar token
+    const esRutaPublica = config.url?.includes('/auth/');
+    if (esRutaPublica) return config;
+
+    // Verificar expiración
     if (tokenCookieExpirado()) {
       deleteCookie('token');
       deleteCookie('usuario');
@@ -28,7 +31,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ── Response: maneja 401 ──
 api.interceptors.response.use(
   (response) => response,
   (error) => {

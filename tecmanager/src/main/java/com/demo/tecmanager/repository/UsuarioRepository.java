@@ -19,4 +19,5 @@ public interface UsuarioRepository extends MongoRepository<Usuario, String> {
 
     List<Usuario> findByNombreContainingIgnoreCase(String nombre);
 
+    List<Usuario> findByRolAndActivoTrue(Rol rol);
 }
