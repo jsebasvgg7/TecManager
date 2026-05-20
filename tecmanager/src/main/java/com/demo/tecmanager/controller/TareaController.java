@@ -107,9 +107,9 @@ public class TareaController {
         return ResponseEntity.ok(service.actualizarAvance(id, porcentaje, auth.getName()));
     }
 
-    // ── DELETE /api/tareas/{id}  (solo ADMIN) ──
+    // ── DELETE /api/tareas/{id}  (solo ADMIN, SUPERVISOR) ──
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR')")
     public ResponseEntity<Void> eliminar(@PathVariable String id) {
         service.eliminar(id);
         return ResponseEntity.noContent().build();
@@ -137,6 +137,13 @@ public class TareaController {
         @RequestParam(required = false)    String estado,
         Authentication auth) {
         return ResponseEntity.ok(service.listarPorTecnicoPaginado(auth.getName(), pagina, tamanio, estado));
+    }
+
+    // ── GET /api/tareas/mis-tareas/conteo ── (TECNICO)
+    @GetMapping("/mis-tareas/conteo")
+    @PreAuthorize("hasRole('TECNICO')")
+    public ResponseEntity<Map<String, Long>> misTareasConteo(Authentication auth) {
+        return ResponseEntity.ok(service.obtenerConteoPorTecnico(auth.getName()));
     }
 
 }

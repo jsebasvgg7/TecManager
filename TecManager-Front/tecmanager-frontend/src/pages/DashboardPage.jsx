@@ -490,36 +490,54 @@ function VistaGeneral({ datos, navigate }) {
    GESTIÓN DE TICKETS
 ───────────────────────────────────────────────────────────── */
 function GestionTickets({ navigate }) {
-  const [tareas, setTareas] = useState([]);
-  const [cargando, setCargando] = useState(true);
-  const [busqueda, setBusqueda] = useState('');
-  const [filtroEstado, setFiltroEstado] = useState('TODOS');
-  const [filtroPrioridad, setFiltroPrioridad] = useState('TODOS');
+  const [tareas,          setTareas]          = useState([]);
+  const [cargando,        setCargando]        = useState(true);
+  const [busqueda,        setBusqueda]        = useState('');
+  const [busquedaDebounce,setBusquedaDebounce]= useState('');
+  const [filtroEstado,    setFiltroEstado]    = useState('');
+  const [filtroPrioridad, setFiltroPrioridad] = useState('');
+  const [totalTickets,    setTotalTickets]    = useState(0);
 
+  // Debounce búsqueda
   useEffect(() => {
-    api.get('/tareas')
-      .then(r => setTareas(r.data))
-      .catch(() => { })
-      .finally(() => setCargando(false));
-  }, []);
+    const t = setTimeout(() => setBusquedaDebounce(busqueda), 400);
+    return () => clearTimeout(t);
+  }, [busqueda]);
 
-  const filtradas = tareas.filter(t =>
-    (filtroEstado === 'TODOS' || t.estado === filtroEstado) &&
-    (filtroPrioridad === 'TODOS' || t.prioridad === filtroPrioridad) &&
-    t.titulo.toLowerCase().includes(busqueda.toLowerCase())
-  );
+  // Cargar cuando cambien filtros
+  useEffect(() => {
+    cargar();
+  }, [busquedaDebounce, filtroEstado, filtroPrioridad]);
+
+  const cargar = async () => {
+    setCargando(true);
+    try {
+      const params = new URLSearchParams({ pagina: 0, tamanio: 20 });
+      if (busquedaDebounce) params.append('busqueda',  busquedaDebounce);
+      if (filtroEstado)     params.append('estado',    filtroEstado);
+      if (filtroPrioridad)  params.append('prioridad', filtroPrioridad);
+
+      const r = await api.get(`/tareas/paginado?${params}`);
+      setTareas(r.data.contenido);
+      setTotalTickets(r.data.totalElementos);
+    } catch {
+      // silencioso
+    } finally {
+      setCargando(false);
+    }
+  };
 
   const ESTADO_STYLE = {
-    PENDIENTE: { bg: '#fef3c7', color: '#92400e', label: 'Pendiente' },
+    PENDIENTE:  { bg: '#fef3c7', color: '#92400e', label: 'Pendiente'  },
     EN_PROCESO: { bg: '#dbeafe', color: '#1e40af', label: 'En proceso' },
     FINALIZADA: { bg: '#dcfce7', color: '#166534', label: 'Finalizada' },
-    EN_ESPERA: { bg: '#f3e8ff', color: '#6b21a8', label: 'En espera' },
+    EN_ESPERA:  { bg: '#f3e8ff', color: '#6b21a8', label: 'En espera'  },
   };
 
   const PRIORIDAD_STYLE = {
-    ALTA: { bg: '#fee2e2', color: '#991b1b', label: 'Alta' },
+    ALTA:  { bg: '#fee2e2', color: '#991b1b', label: 'Alta'  },
     MEDIA: { bg: '#fef3c7', color: '#92400e', label: 'Media' },
-    BAJA: { bg: '#dcfce7', color: '#166534', label: 'Baja' },
+    BAJA:  { bg: '#dcfce7', color: '#166534', label: 'Baja'  },
   };
 
   return (
@@ -536,45 +554,42 @@ function GestionTickets({ navigate }) {
         </button>
       </div>
 
+      {/* Filtros */}
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
-          <Search size={14} strokeWidth={2} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9c9790', pointerEvents: 'none' }} />
+          <Search size={14} strokeWidth={2} style={{
+            position: 'absolute', left: 12, top: '50%',
+            transform: 'translateY(-50%)', color: '#9c9790', pointerEvents: 'none'
+          }} />
           <input
-            type="text"
-            placeholder="Buscar ticket..."
-            value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
+            type="text" placeholder="Buscar ticket..."
+            value={busqueda} onChange={e => setBusqueda(e.target.value)}
             style={{ width: '100%', padding: '8px 14px 8px 36px', border: '1px solid #d9cfc4', borderRadius: 10, fontSize: 13, background: '#f7f4f0', color: '#262424', outline: 'none', fontFamily: 'Nunito Sans, sans-serif' }}
           />
         </div>
-        <select
-          value={filtroEstado}
-          onChange={e => setFiltroEstado(e.target.value)}
-          style={{ padding: '8px 14px', border: '1px solid #d9cfc4', borderRadius: 10, fontSize: 13, background: '#f7f4f0', color: '#262424', outline: 'none', fontFamily: 'Nunito Sans, sans-serif', cursor: 'pointer' }}
-        >
-          <option value="TODOS">Todos los estados</option>
+        <select value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}
+          style={{ padding: '8px 14px', border: '1px solid #d9cfc4', borderRadius: 10, fontSize: 13, background: '#f7f4f0', color: '#262424', outline: 'none', fontFamily: 'Nunito Sans, sans-serif', cursor: 'pointer' }}>
+          <option value="">Todos los estados</option>
           <option value="PENDIENTE">Pendiente</option>
           <option value="EN_ESPERA">En espera</option>
           <option value="EN_PROCESO">En proceso</option>
           <option value="FINALIZADA">Finalizada</option>
         </select>
-        <select
-          value={filtroPrioridad}
-          onChange={e => setFiltroPrioridad(e.target.value)}
-          style={{ padding: '8px 14px', border: '1px solid #d9cfc4', borderRadius: 10, fontSize: 13, background: '#f7f4f0', color: '#262424', outline: 'none', fontFamily: 'Nunito Sans, sans-serif', cursor: 'pointer' }}
-        >
-          <option value="TODOS">Todas las prioridades</option>
+        <select value={filtroPrioridad} onChange={e => setFiltroPrioridad(e.target.value)}
+          style={{ padding: '8px 14px', border: '1px solid #d9cfc4', borderRadius: 10, fontSize: 13, background: '#f7f4f0', color: '#262424', outline: 'none', fontFamily: 'Nunito Sans, sans-serif', cursor: 'pointer' }}>
+          <option value="">Todas las prioridades</option>
           <option value="ALTA">Alta</option>
           <option value="MEDIA">Media</option>
           <option value="BAJA">Baja</option>
         </select>
       </div>
 
+      {/* Tabla */}
       {cargando ? (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 140, gap: 10, color: '#9c9790', fontSize: 13 }}>
           <RefreshCw size={15} style={{ animation: 'spinAnim 0.8s linear infinite' }} /> Cargando tickets...
         </div>
-      ) : filtradas.length === 0 ? (
+      ) : tareas.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px 0', color: '#9c9790', fontSize: 13 }}>
           No hay tickets con los filtros seleccionados
         </div>
@@ -589,11 +604,12 @@ function GestionTickets({ navigate }) {
               </tr>
             </thead>
             <tbody>
-              {filtradas.slice(0, 20).map(t => {
-                const est = ESTADO_STYLE[t.estado] || { bg: '#f0ece7', color: '#9c9790', label: t.estado };
+              {tareas.map(t => {
+                const est = ESTADO_STYLE[t.estado]       || { bg: '#f0ece7', color: '#9c9790', label: t.estado };
                 const pri = PRIORIDAD_STYLE[t.prioridad] || { bg: '#f0ece7', color: '#9c9790', label: t.prioridad };
                 return (
-                  <tr key={t.id} style={{ borderBottom: '1px solid #f0ece7', transition: 'background 0.13s' }}
+                  <tr key={t.id}
+                    style={{ borderBottom: '1px solid #f0ece7', transition: 'background 0.13s' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#faf8f5'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
@@ -630,13 +646,17 @@ function GestionTickets({ navigate }) {
               })}
             </tbody>
           </table>
-          {filtradas.length > 20 && (
-            <div style={{ padding: '12px 14px', textAlign: 'center', borderTop: '1px solid #f0ece7' }}>
-              <button onClick={() => navigate('/tickets')} style={{ background: 'none', border: 'none', color: '#5a7de8', fontFamily: 'Nunito, sans-serif', fontWeight: 700, fontSize: 12.5, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                Ver todos los tickets ({filtradas.length}) <ArrowRight size={12} strokeWidth={2.5} />
-              </button>
-            </div>
-          )}
+
+          {/* Footer con total */}
+          <div style={{ padding: '12px 14px', textAlign: 'center', borderTop: '1px solid #f0ece7', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <span style={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: 12, color: '#9c9790' }}>
+              Mostrando {tareas.length} de {totalTickets} tickets
+            </span>
+            <button onClick={() => navigate('/tickets')}
+              style={{ background: 'none', border: 'none', color: '#5a7de8', fontFamily: 'Nunito, sans-serif', fontWeight: 700, fontSize: 12.5, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+              Ver todos <ArrowRight size={12} strokeWidth={2.5} />
+            </button>
+          </div>
         </div>
       )}
     </div>

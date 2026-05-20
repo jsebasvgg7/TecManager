@@ -6,7 +6,7 @@ import { Wrench, RefreshCw } from 'lucide-react';
 import '../styles/tickets.css';
 
 const FILTROS = [
-  { valor: 'TODOS',     label: 'Todos'      },
+  { valor: '',          label: 'Todos'       },  // ← vacío en lugar de 'TODOS'
   { valor: 'PENDIENTE', label: 'Pendientes', color: '#f59e0b' },
   { valor: 'EN_PROCESO',label: 'En Proceso', color: '#3b82f6' },
   { valor: 'FINALIZADA',label: 'Finalizados',color: '#22c55e' },
@@ -18,56 +18,73 @@ export default function MisTicketsPage() {
   const [error, setError]             = useState('');
   const [exito, setExito]             = useState('');
   const [ticketEstado, setTicketEstado] = useState(null);
-  const [filtroEstado, setFiltroEstado] = useState('TODOS');
+  const [filtroEstado, setFiltroEstado] = useState('');
   const [pagina,      setPagina]      = useState(0);
   const [hayMas,      setHayMas]      = useState(true);
   const [cargandoMas, setCargandoMas] = useState(false);
+  const [conteos, setConteos]         = useState({ TODOS: 0, PENDIENTE: 0, EN_PROCESO: 0, FINALIZADA: 0 });
   const centinelaRef = useRef(null);
   const observerRef  = useRef(null);
 
-  useEffect(() => { cargarMisTickets(); }, []);
+  const cargarConteos = useCallback(async () => {
+    try {
+      const r = await api.get('/tareas/mis-tareas/conteo');
+      setConteos(r.data || { TODOS: 0, PENDIENTE: 0, EN_PROCESO: 0, FINALIZADA: 0 });
+    } catch (err) {
+      console.error('Error al cargar conteos', err);
+    }
+  }, []);
+
+  useEffect(() => { cargarConteos(); }, [cargarConteos]);
 
   const cargarMisTickets = useCallback(async (paginaNum, reset = false) => {
-    if (reset) setCargando(true);
-    else setCargandoMas(true);
+  if (reset) setCargando(true);
+  else setCargandoMas(true);
 
-    try {
-      const params = new URLSearchParams({ pagina: paginaNum, tamanio: 20 });
-      if (filtroEstado) params.append('estado', filtroEstado);
+  try {
+    const params = new URLSearchParams({
+      pagina:  paginaNum ?? 0,  // ← protección contra undefined
+      tamanio: 20,
+    });
 
-      const r = await api.get(`/tareas/mis-tareas/paginado?${params}`);
-      const { contenido, hayMas: mas } = r.data;
-
-      setTickets(prev => reset ? contenido : [...prev, ...contenido]);
-      setHayMas(mas);
-      setPagina(paginaNum + 1);
-    } catch {
-      setError('Error al cargar tus tickets');
-    } finally {
-      setCargando(false);
-      setCargandoMas(false);
+    // ← solo agrega estado si es un valor válido, no vacío
+    if (filtroEstado) {
+      params.append('estado', filtroEstado);
     }
-  }, [filtroEstado]);
+
+    const r = await api.get(`/tareas/mis-tareas/paginado?${params}`);
+    const { contenido = [], hayMas: mas = false } = r.data || {};
+
+    setTickets(prev => reset ? contenido : [...prev, ...contenido]);
+    setHayMas(mas);
+    setPagina((paginaNum ?? 0) + 1);
+  } catch {
+    setError('Error al cargar tus tickets');
+  } finally {
+    setCargando(false);
+    setCargandoMas(false);
+  }
+}, [filtroEstado]);
 
   const handleCambiarEstado = async (datos) => {
     try {
       await api.patch(`/tareas/${ticketEstado.id}/estado`, datos);
       setExito('Estado actualizado correctamente');
       setTimeout(() => setExito(''), 3000);
-      setTicketEstado(null); cargarMisTickets();
+      setTicketEstado(null); 
+      cargarConteos();
+      cargarMisTickets(0, true);
     } catch (err) { throw new Error(err.response?.data?.mensaje || 'Error al cambiar estado'); }
   };
 
-  const ticketsFiltrados = tickets.filter(t => filtroEstado === 'TODOS' || t.estado === filtroEstado);
+  const ticketsFiltrados = tickets.filter(t => filtroEstado === '' || t.estado === filtroEstado);
 
   useEffect(() => {
     setTickets([]);
     setPagina(0);
     setHayMas(true);
     cargarMisTickets(0, true);
-  }, [filtroEstado]);
-
-  const count = (estado) => tickets.filter(t => t.estado === estado).length;
+  }, [filtroEstado, cargarMisTickets]);
 
   useEffect(() => {
     if (observerRef.current) observerRef.current.disconnect();
@@ -90,7 +107,7 @@ export default function MisTicketsPage() {
         <div>
           <p className="dash-eyebrow">Mi panel</p>
           <h1>Mis Tickets</h1>
-          <p className="texto-suave">{tickets.length} tickets asignados</p>
+          <p className="texto-suave">{conteos.TODOS} tickets asignados</p>
         </div>
       </div>
 
@@ -103,8 +120,8 @@ export default function MisTicketsPage() {
             className={`resumen-item ${filtroEstado === valor ? 'activo' : ''}`}
             onClick={() => setFiltroEstado(valor)}
           >
-            <span className="resumen-num" style={ valor !== 'TODOS' ? { color } : {} }>
-              {valor === 'TODOS' ? tickets.length : count(valor)}
+            <span className="resumen-num" style={ valor !== '' ? { color } : {} }>
+              {valor === '' ? conteos.TODOS : (conteos[valor] || 0)}
             </span>
             <span>{label}</span>
           </div>
@@ -115,7 +132,7 @@ export default function MisTicketsPage() {
         <div className="cargando"><RefreshCw size={18} className="spin" /> Cargando tickets...</div>
       ) : ticketsFiltrados.length === 0 ? (
         <div className="vacio">
-          {filtroEstado === 'TODOS' ? 'No tienes tickets asignados' : `No tienes tickets en este estado`}
+          {filtroEstado === '' ? 'No tienes tickets asignados' : `No tienes tickets en este estado`}
         </div>
       ) : (
         <div className="tickets-grid">
